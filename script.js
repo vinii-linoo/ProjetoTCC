@@ -63,3 +63,83 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+document.getElementById('saveButton').addEventListener('click', function(event) {
+    event.preventDefault(); // Impede o envio do formulário
+
+    // Captura dos valores dos campos
+    const tipoMovimentacao = document.querySelector('input[name="registro"]:checked').value;
+    const nomeProduto = document.getElementById('nomeProduto').value;
+    const estoqueAtual = document.getElementById('estoqueAtual').value;
+    const tipoMaterial = document.getElementById('tipoMaterial').value;
+    const codigo = document.getElementById('codigo').value;
+    const empresa = document.getElementById('empresa').value; // CNPJ da empresa
+    const quantidade = document.getElementById('quantidade').value;
+    const data = document.getElementById('data').value;
+    const estoqueCritico = document.getElementById('estoqueCritico').value;
+    const estoqueSeguranca = document.getElementById('estoqueSeguranca').value;
+    const estoqueMaximo = document.getElementById('estoqueMaximo').value;
+    const estoqueMinimo = document.getElementById('estoqueMinimo').value;
+
+    // Validação básica
+    if (!nomeProduto || !tipoMaterial || !codigo || !quantidade || !data || !empresa) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Criando o objeto de movimentação
+    const movimentacao = {
+        tipoMovimentacao,
+        nomeProduto,
+        estoqueAtual,
+        tipoMaterial, // Tipo do material (ex: Aço)
+        codigo,
+        empresa, // CNPJ da empresa
+        quantidade,
+        data,
+        estoqueCritico,
+        estoqueSeguranca,
+        estoqueMaximo,
+        estoqueMinimo
+    };
+
+    // Salvar no localStorage
+    salvarMovimentacao(movimentacao);
+
+    // Limpar o formulário após o salvamento
+    document.querySelector('form').reset();
+
+    // Atualizar a lista de movimentações
+    carregarMovimentacoes();
+});
+
+function salvarMovimentacao(movimentacao) {
+    // Recupera as movimentações salvas ou inicializa um array vazio
+    let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
+
+    // Adiciona a nova movimentação ao array
+    movimentacoes.push(movimentacao);
+
+    // Salva o array atualizado no localStorage
+    localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
+}
+
+function carregarMovimentacoes() {
+    // Recupera as movimentações salvas
+    const movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
+
+    // Limpa a lista atual
+    const listaMovimentacoes = document.getElementById('listaMovimentacoes');
+    listaMovimentacoes.innerHTML = '';
+
+    // Adiciona cada movimentação à lista
+    movimentacoes.forEach((mov, index) => {
+        const itemLista = document.createElement('li');
+        itemLista.textContent = `Movimentação ${index + 1}: ${mov.tipoMovimentacao} - ${mov.nomeProduto} - ${mov.tipoMaterial} (${mov.quantidade} unidades em ${mov.data}) - Empresa: ${mov.empresa}`;
+        listaMovimentacoes.appendChild(itemLista);
+    });
+}
+
+// Carrega as movimentações ao carregar a página
+window.onload = carregarMovimentacoes;

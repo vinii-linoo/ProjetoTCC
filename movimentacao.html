@@ -8,14 +8,11 @@
     <link rel="stylesheet" href="style4.css">
     <link rel="icon" type="image/png" href="img/logo.png">
 </head>
-</head>
 
 <body>
     <header>
         <nav>
-
             <img src="./img/logo.png" alt="Logo" class="logo">
-
             <a href="index.html" class="back-link">Voltar</a>
         </nav>
     </header>
@@ -26,7 +23,7 @@
                 <input type="radio" name="registro" value="saida" checked class="radio"> Saída<br>
                 <input type="radio" name="registro" value="entrada"> Entrada<br>
                 <div class="buttons">
-                    <button class="save">Salvar</button>
+                    <button class="save" id="saveButton">Salvar</button>
                     <a href="index.html">
                         <button class="exit">Sair</button>
                     </a>
@@ -34,30 +31,49 @@
             </div>
             <div class="main">
                 <div class="form-group">
-                    <label>Lançamento:</label>
-                    <input type="text">
+                    <label>Nome do Produto:</label>
+                    <input type="text" id="nomeProduto">
                     <label>Estoque Atual:</label>
-                    <input type="text">
+                    <input type="text" id="estoqueAtual">
                 </div>
                 <div class="formMaterial">
-                    <label>Material:</label>
-                    <input type="text" class="material">
+                    <label>Tipo do Material:</label>
+                    <input type="text" class="material" id="tipoMaterial">
                 </div>
                 <div class="form-group">
                     <label>Código:</label>
-                    <input type="text">
-                    <label>Unidade:</label>
-                    <input type="text">
+                    <input type="text" id="codigo">
+                    <label>Empresa (CNPJ):</label>
+                    <input type="text" id="empresa">
                 </div>
                 <div class="form-group">
                     <label>Quantidade:</label>
-                    <input type="text">
+                    <input type="text" id="quantidade">
                     <label>Data:</label>
-                    <input type="date">
+                    <input type="date" id="data">
+                </div>
+                <div class="form-group">
+                    <label>Estoque Crítico:</label>
+                    <input type="text" id="estoqueCritico">
+                    <label>Estoque de Segurança:</label>
+                    <input type="text" id="estoqueSeguranca">
+                </div>
+                <div class="form-group">
+                    <label>Estoque Máximo:</label>
+                    <input type="text" id="estoqueMaximo">
+                    <label>Estoque Mínimo para Compra:</label>
+                    <input type="text" id="estoqueMinimo">
                 </div>
             </div>
         </div>
+        <!-- Lista de Movimentações Salvas -->
+        <div class="movimentacoes-salvas">
+            <h2>Movimentações Salvas</h2>
+            <ul id="listaMovimentacoes"></ul>
+        </div>
     </div>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
