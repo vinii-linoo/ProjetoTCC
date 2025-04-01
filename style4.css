@@ -190,7 +190,7 @@ button {
 }
 
 .delete {
-    background-color: #d9534f;
+    background-color: #ff0800;
     color: white;
     margin-top: 10px;
 }
@@ -208,7 +208,7 @@ button:hover {
 }
 
 .delete:hover {
-    background-color: #c9302c;
+    background-color: #c90700;
 }
 
 .estoque-critico {
