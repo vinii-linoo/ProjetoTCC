@@ -13,114 +13,136 @@
     <header>
         <nav>
             <img src="./img/logo.png" alt="Logo" class="logo">
-            <a href="index.html" class="back-link">Voltar</a>
+            <p class="page-title">Tela de Movimentações</p>
         </nav>
     </header>
-    <div class="container">
-        <div class="content">
-            <div class="sidebar">
-                <label>Selecione a Opção: </label><br>
-                <input type="radio" name="registro" value="entrada" checked class="radio"> Entrada<br>
-                <input type="radio" name="registro" value="saida"> Saída <br>
-                <input type="radio" name="registro" value="estoque"> Estoque <br>
-                <input type="radio" name="registro" value="cadastro"> Cadastro de Item <br>
-                <div class="buttons">
-                    <button class="save" id="saveButton">Salvar</button>
-                    <a href="index.html">
-                        <button class="exit">Sair</button>
-                    </a>
-                </div>
-            </div>
-            <div class="main" id="mainContent">
-                <!-- Tela de Entrada/Saída -->
-                <div id="movimentacaoForm">
-                    <form id="cadastroMovimentacaoForm">
+    <div class="main-container">
+        <div class="container">
+            <div class="content">
+                <div class="sidebar">
+                    <label class="radio-option">
+                        <input type="radio" name="registro" value="entrada" checked class="radio">
+                        <span>Entrada</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="registro" value="saida" class="radio">
+                        <span>Saída</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="registro" value="estoque" class="radio">
+                        <span>Estoque</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="registro" value="cadastro" class="radio">
+                        <span>Cadastro de Item</span>
+                    </label>
+                    <div class="buttons">
+                        <button class="save" id="saveButton">Salvar</button>
+                        <a href="index.html">
+                            <button class="exit">Sair</button>
+                        </a>
+                    </div>
+                    <div class="delete-section">
                         <div class="form-group">
-                            <label> Nome do Produto: </label>
-                            <select id="nomeProdutoMovimentacao" required>
-                                <option value="">Selecione um produto</option>
+                            <label>Selecione o Item para Excluir:</label>
+                            <select id="itemParaExcluir">
+                                <option value="">Selecione um item</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label> Estoque Atual: </label>
-                            <input type="number" id="estoqueAtual" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label> Tipo do Material: </label>
-                            <input type="text" id="tipoMaterial" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label> Código: </label>
-                            <input type="text" id="codigo" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label> Empresa (CNPJ): </label>
-                            <input type="text" id="empresa" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label> Quantidade: </label>
-                            <input type="number" id="quantidade" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Data: </label>
-                            <input type="date" id="data" required>
-                        </div>
-                    </form>
+                        <button class="delete" id="deleteItemButton">Excluir Item Selecionado</button>
+                    </div>
                 </div>
+                <div class="main" id="mainContent">
+                    <!-- Tela de Entrada/Saída -->
+                    <div id="movimentacaoForm">
+                        <form id="cadastroMovimentacaoForm">
+                            <div class="form-group">
+                                <label> Nome do Produto: </label>
+                                <select id="nomeProdutoMovimentacao" required>
+                                    <option value="">Selecione um produto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label> Estoque Atual: </label>
+                                <input type="number" id="estoqueAtual" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Tipo do Material: </label>
+                                <input type="text" id="tipoMaterial" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Código: </label>
+                                <input type="text" id="codigo" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Empresa (CNPJ): </label>
+                                <input type="text" id="empresa" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Quantidade: </label>
+                                <input type="number" id="quantidade" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Data: </label>
+                                <input type="date" id="data" required min="2025-01-01" max="2026-01-01">
+                            </div>
+                        </form>
+                    </div>
 
-                <!-- Tela de Estoque -->
-                <div id="estoqueContent" style="display: none;">
-                    <h2> Estoque </h2>
-                    <ul id="listaEstoque"></ul>
-                </div>
+                    <!-- Tela de Estoque -->
+                    <div id="estoqueContent" style="display: none;">
+                        <h2> Estoque </h2>
+                        <ul id="listaEstoque"></ul>
+                    </div>
 
-                <!-- Tela de Cadastro de Item -->
-                <div id="cadastroItemContent" style="display: none;">
-                    <form id="cadastroItemForm">
-                        <div class="form-group">
-                            <label> Nome do Produto: </label>
-                            <input type="text" id="nomeProdutoCadastro" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Tipo do Material: </label>
-                            <input type="text" id="tipoMaterialCadastro" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Código: </label>
-                            <input type="text" id="codigoCadastro" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Empresa (CNPJ): </label>
-                            <input type="text" id="empresaCadastro" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Estoque Atual: </label>
-                            <input type="number" id="estoqueAtualCadastro" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Estoque Crítico: </label>
-                            <input type="number" id="estoqueCritico" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Estoque de Segurança: </label>
-                            <input type="number" id="estoqueSeguranca" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Estoque Máximo: </label>
-                            <input type="number" id="estoqueMaximo" required>
-                        </div>
-                        <div class="form-group">
-                            <label> Estoque Mínimo para Compra: </label>
-                            <input type="number" id="estoqueMinimo" required>
-                        </div>
-                    </form>
+                    <!-- Tela de Cadastro de Item -->
+                    <div id="cadastroItemContent" style="display: none;">
+                        <form id="cadastroItemForm">
+                            <div class="form-group">
+                                <label> Nome do Produto: </label>
+                                <input type="text" id="nomeProdutoCadastro" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Tipo do Material: </label>
+                                <input type="text" id="tipoMaterialCadastro" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Código: </label>
+                                <input type="text" id="codigoCadastro" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Empresa (CNPJ): </label>
+                                <input type="text" id="empresaCadastro" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Estoque Atual: </label>
+                                <input type="number" id="estoqueAtualCadastro" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Estoque Crítico: </label>
+                                <input type="number" id="estoqueCritico" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Estoque de Segurança: </label>
+                                <input type="number" id="estoqueSeguranca" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Estoque Máximo: </label>
+                                <input type="number" id="estoqueMaximo" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Estoque Mínimo para Compra: </label>
+                                <input type="number" id="estoqueMinimo" required>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- Lista de Movimentações Salvas -->
-        <div class="movimentacoes-salvas">
-            <h2> Movimentações Salvas </h2>
-            <ul id="listaMovimentacoes"></ul>
+            <!-- Lista de Movimentações Salvas -->
+            <div class="movimentacoes-salvas">
+                <h2> Movimentações Salvas </h2>
+                <ul id="listaMovimentacoes"></ul>
+            </div>
         </div>
     </div>
 
