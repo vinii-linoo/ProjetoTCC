@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 li.classList.add('estoque-critico');
             }
             
-            li.textContent = `${item.nomeProduto}: ${item.estoqueAtual} unidades (Mín: ${item.estoqueMinimo}, Máx: ${item.estoqueMaximo})`;
+            li.textContent = `${item.nomeProduto}: ${item.estoqueAtual} unidades`;
             listaEstoque.appendChild(li);
         });
     }
