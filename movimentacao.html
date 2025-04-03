@@ -13,7 +13,8 @@
     <header>
         <nav>
             <img src="./img/logo.png" alt="Logo" class="logo">
-            <p class="page-title">Tela de Movimentações</p>
+            <h1 class="page-title">Tela de Movimentações</h1>
+            <a href="index.html" class="back-link">Voltar</a>
         </nav>
     </header>
     <div class="main-container">
@@ -63,20 +64,26 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label> Estoque Atual: </label>
-                                <input type="number" id="estoqueAtual" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label> Tipo do Material: </label>
-                                <input type="text" id="tipoMaterial" readonly>
-                            </div>
-                            <div class="form-group">
                                 <label> Código: </label>
                                 <input type="text" id="codigo" readonly>
                             </div>
                             <div class="form-group">
-                                <label> Empresa (CNPJ): </label>
-                                <input type="text" id="empresa" readonly>
+                                <label> Estoque Atual: </label>
+                                <input type="number" id="estoqueAtual" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Tipo do Item: </label>
+                                <input type="text" id="tipoItem" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Detalhes: </label>
+                                <input type="text" id="detalhesItem" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label> Empresa: </label>
+                                <select id="empresa" readonly>
+                                    <option value="">Selecione um produto primeiro</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label> Quantidade: </label>
@@ -103,16 +110,57 @@
                                 <input type="text" id="nomeProdutoCadastro" required>
                             </div>
                             <div class="form-group">
-                                <label> Tipo do Material: </label>
-                                <input type="text" id="tipoMaterialCadastro" required>
-                            </div>
-                            <div class="form-group">
                                 <label> Código: </label>
                                 <input type="text" id="codigoCadastro" required>
                             </div>
                             <div class="form-group">
-                                <label> Empresa (CNPJ): </label>
-                                <input type="text" id="empresaCadastro" required>
+                                <label> Tipo do Item: </label>
+                                <select id="tipoItemCadastro" required>
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="EPI">EPI</option>
+                                    <option value="Material">Material</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Campos específicos para EPI -->
+                            <div id="epiFields" style="display: none;">
+                                <div class="form-group">
+                                    <label> CA (Certificado de Aprovação): </label>
+                                    <input type="text" id="caEpi" required>
+                                </div>
+                                <div class="form-group">
+                                    <label> Tamanho: </label>
+                                    <select id="tamanhoEpi" required>
+                                        <option value="Único">Único</option>
+                                        <option value="P">P</option>
+                                        <option value="M">M</option>
+                                        <option value="G">G</option>
+                                        <option value="GG">GG</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Campos específicos para Material -->
+                            <div id="materialFields" style="display: none;">
+                                <div class="form-group">
+                                    <label> Tipo de Material: </label>
+                                    <input type="text" id="tipoMaterial" placeholder="Ex: Aço, Ferro, Alumínio" required>
+                                </div>
+                                <div class="form-group">
+                                    <label> Dimensões (formato: 1,25x1,50): </label>
+                                    <input type="text" id="dimensoesMaterial" placeholder="Ex: 1,25x1,50" required
+                                           pattern="\d+,\d+x\d+,\d+" title="Digite no formato 1,25x1,50">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label> Empresa: </label>
+                                <select id="empresaCadastro" required>
+                                    <option value="">Selecione uma empresa</option>
+                                    <option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>
+                                    <option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>
+                                    <option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label> Estoque Atual: </label>
@@ -148,5 +196,4 @@
 
     <script src="script.js"></script>
 </body>
-
 </html>

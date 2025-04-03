@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Funções de login (se necessário)
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
@@ -54,9 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
 
-document.addEventListener('DOMContentLoaded', function () {
     // Variáveis do sistema principal
     const formMovimentacao = document.getElementById('cadastroMovimentacaoForm');
     const formCadastroItem = document.getElementById('cadastroItemForm');
@@ -70,17 +69,42 @@ document.addEventListener('DOMContentLoaded', function () {
     const radioButtons = document.querySelectorAll('input[name="registro"]');
     const selectProduto = document.getElementById('nomeProdutoMovimentacao');
     const estoqueAtualInput = document.getElementById('estoqueAtual');
-    const tipoMaterialInput = document.getElementById('tipoMaterial');
+    const tipoItemInput = document.getElementById('tipoItem');
+    const detalhesItemInput = document.getElementById('detalhesItem');
     const codigoInput = document.getElementById('codigo');
     const empresaInput = document.getElementById('empresa');
     const dataInput = document.getElementById('data');
     const deleteItemButton = document.getElementById('deleteItemButton');
     const itemParaExcluirSelect = document.getElementById('itemParaExcluir');
+    
+    // Variáveis para cadastro de itens
+    const tipoItemCadastro = document.getElementById('tipoItemCadastro');
+    const epiFields = document.getElementById('epiFields');
+    const materialFields = document.getElementById('materialFields');
+    const caEpi = document.getElementById('caEpi');
+    const tamanhoEpi = document.getElementById('tamanhoEpi');
+    const tipoMaterial = document.getElementById('tipoMaterial');
+    const dimensoesMaterial = document.getElementById('dimensoesMaterial');
+    const empresaCadastro = document.getElementById('empresaCadastro');
 
     // Configurações iniciais
     dataInput.min = '2025-01-01';
     dataInput.max = '2026-01-01';
     dataInput.valueAsDate = new Date();
+
+    // Mostrar/ocultar campos de EPI ou Material conforme seleção
+    tipoItemCadastro.addEventListener('change', function() {
+        const tipoSelecionado = this.value;
+        
+        epiFields.style.display = 'none';
+        materialFields.style.display = 'none';
+        
+        if (tipoSelecionado === 'EPI') {
+            epiFields.style.display = 'block';
+        } else if (tipoSelecionado === 'Material') {
+            materialFields.style.display = 'block';
+        }
+    });
 
     // Função para alternar entre as telas
     function toggleContent() {
@@ -97,9 +121,12 @@ document.addEventListener('DOMContentLoaded', function () {
             atualizarEstoque();
         } else if (selectedValue === 'cadastro') {
             cadastroItemContent.style.display = 'block';
+            // Resetar campos ao mostrar a tela de cadastro
+            tipoItemCadastro.value = '';
+            epiFields.style.display = 'none';
+            materialFields.style.display = 'none';
         }
         
-        // Sempre carrega os itens para exclusão
         carregarItensParaExclusao();
     }
 
@@ -140,14 +167,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (itemSelecionado) {
             estoqueAtualInput.value = itemSelecionado.estoqueAtual;
-            tipoMaterialInput.value = itemSelecionado.tipoMaterial;
+            tipoItemInput.value = itemSelecionado.tipoItem;
             codigoInput.value = itemSelecionado.codigo;
-            empresaInput.value = itemSelecionado.empresa;
+            
+            // Preencher o select de empresa
+            empresaInput.innerHTML = `<option value="${itemSelecionado.empresa}">${itemSelecionado.empresa}</option>`;
+            
+            // Preencher detalhes conforme o tipo de item
+            if (itemSelecionado.tipoItem === 'EPI') {
+                detalhesItemInput.value = `CA: ${itemSelecionado.ca}, Tamanho: ${itemSelecionado.tamanho}`;
+            } else if (itemSelecionado.tipoItem === 'Material') {
+                detalhesItemInput.value = `Tipo: ${itemSelecionado.tipoMaterial}, Dimensões: ${itemSelecionado.dimensoes}`;
+            }
         } else {
             estoqueAtualInput.value = '';
-            tipoMaterialInput.value = '';
+            tipoItemInput.value = '';
+            detalhesItemInput.value = '';
             codigoInput.value = '';
-            empresaInput.value = '';
+            empresaInput.innerHTML = '<option value="">Selecione um produto primeiro</option>';
         }
     });
 
@@ -231,12 +268,13 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('quantidade').value = '';
             selectProduto.value = '';
             estoqueAtualInput.value = '';
-            tipoMaterialInput.value = '';
+            tipoItemInput.value = '';
+            detalhesItemInput.value = '';
             codigoInput.value = '';
-            empresaInput.value = '';
+            empresaInput.innerHTML = '<option value="">Selecione um produto primeiro</option>';
         } else if (selectedValue === 'cadastro') {
             const nomeProdutoCadastro = document.getElementById('nomeProdutoCadastro').value;
-            const tipoMaterial = document.getElementById('tipoMaterialCadastro').value;
+            const tipoItem = document.getElementById('tipoItemCadastro').value;
             const codigo = document.getElementById('codigoCadastro').value;
             const empresa = document.getElementById('empresaCadastro').value;
             const estoqueAtual = parseInt(document.getElementById('estoqueAtualCadastro').value);
@@ -245,24 +283,52 @@ document.addEventListener('DOMContentLoaded', function () {
             const estoqueMaximo = parseInt(document.getElementById('estoqueMaximo').value);
             const estoqueMinimo = parseInt(document.getElementById('estoqueMinimo').value);
 
-            if (!nomeProdutoCadastro || !tipoMaterial || !codigo || !empresa) {
+            // Validações básicas
+            if (!nomeProdutoCadastro || !tipoItem || !codigo || !empresa) {
                 alert('Por favor, preencha todos os campos obrigatórios!');
                 return;
             }
 
+            // Objeto base do item
             const item = {
                 nomeProduto: nomeProdutoCadastro,
-                tipoMaterial,
-                codigo,
-                empresa,
-                estoqueAtual,
-                estoqueCritico,
-                estoqueSeguranca,
-                estoqueMaximo,
-                estoqueMinimo
+                tipoItem: tipoItem,
+                codigo: codigo,
+                empresa: empresa,
+                estoqueAtual: estoqueAtual,
+                estoqueCritico: estoqueCritico,
+                estoqueSeguranca: estoqueSeguranca,
+                estoqueMaximo: estoqueMaximo,
+                estoqueMinimo: estoqueMinimo
             };
 
-            // Salvar item
+            // Adiciona campos específicos conforme o tipo
+            if (tipoItem === 'EPI') {
+                item.ca = document.getElementById('caEpi').value;
+                item.tamanho = document.getElementById('tamanhoEpi').value;
+                
+                if (!item.ca) {
+                    alert('Por favor, informe o CA do EPI!');
+                    return;
+                }
+            } else if (tipoItem === 'Material') {
+                item.tipoMaterial = document.getElementById('tipoMaterial').value;
+                item.dimensoes = document.getElementById('dimensoesMaterial').value;
+                
+                if (!item.tipoMaterial) {
+                    alert('Por favor, informe o tipo de material!');
+                    return;
+                }
+                
+                // Validação do formato das dimensões
+                const dimensoesPattern = /^\d+,\d+x\d+,\d+$/;
+                if (!dimensoesPattern.test(item.dimensoes)) {
+                    alert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
+                    return;
+                }
+            }
+
+            // Salvar item no localStorage
             let itens = JSON.parse(localStorage.getItem('itens')) || [];
             
             const itemExistente = itens.find(item => item.nomeProduto === nomeProdutoCadastro);
@@ -276,6 +342,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Limpar e atualizar
             formCadastroItem.reset();
+            tipoItemCadastro.value = '';
+            epiFields.style.display = 'none';
+            materialFields.style.display = 'none';
             carregarProdutosNoSelect();
             carregarItensParaExclusao();
             alert('Item cadastrado com sucesso!');
@@ -334,7 +403,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 li.classList.add('estoque-critico');
             }
             
-            li.textContent = `${item.nomeProduto}: ${item.estoqueAtual} unidades`;
+            let detalhes = '';
+            if (item.tipoItem === 'EPI') {
+                detalhes = `CA: ${item.ca}, Tamanho: ${item.tamanho}`;
+            } else if (item.tipoItem === 'Material') {
+                detalhes = `Tipo: ${item.tipoMaterial}, Dimensões: ${item.dimensoes}`;
+            }
+            
+            li.textContent = `${item.nomeProduto}: ${item.estoqueAtual} unidades (${detalhes}) - Empresa: ${item.empresa}`;
             listaEstoque.appendChild(li);
         });
     }
