@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Controle de Estoque</title>
-    <link rel="stylesheet" href="style4.css">
+    <link rel="stylesheet" href="../style4.css">
     <link rel="icon" type="image/png" href="img/logo.png">
 </head>
-
 <body>
     <header>
         <nav>
@@ -58,14 +56,23 @@
                     <div id="movimentacaoForm">
                         <form id="cadastroMovimentacaoForm">
                             <div class="form-group">
+                                <label> Código: </label>
+                                <input type="text" id="codigo" readonly>
+                            </div>
+                            <div class="form-group">
                                 <label> Nome do Produto: </label>
                                 <select id="nomeProdutoMovimentacao" required>
                                     <option value="">Selecione um produto</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label> Código: </label>
-                                <input type="text" id="codigo" readonly>
+                                <label> Empresa: </label>
+                                <select id="empresa" required>
+                                    <option value="">Selecione uma empresa</option>
+                                    <option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>
+                                    <option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>
+                                    <option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label> Estoque Atual: </label>
@@ -78,12 +85,6 @@
                             <div class="form-group">
                                 <label> Detalhes: </label>
                                 <input type="text" id="detalhesItem" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label> Empresa: </label>
-                                <select id="empresa" readonly>
-                                    <option value="">Selecione um produto primeiro</option>
-                                </select>
                             </div>
                             <div class="form-group">
                                 <label> Quantidade: </label>
@@ -106,19 +107,19 @@
                     <div id="cadastroItemContent" style="display: none;">
                         <form id="cadastroItemForm">
                             <div class="form-group">
-                                <label> Nome do Produto: </label>
-                                <input type="text" id="nomeProdutoCadastro" required>
-                            </div>
-                            <div class="form-group">
                                 <label> Código: </label>
                                 <input type="text" id="codigoCadastro" required>
+                            </div>
+                            <div class="form-group">
+                                <label> Nome do Produto: </label>
+                                <input type="text" id="nomeProdutoCadastro" required>
                             </div>
                             <div class="form-group">
                                 <label> Tipo do Item: </label>
                                 <select id="tipoItemCadastro" required>
                                     <option value="">Selecione o tipo</option>
                                     <option value="EPI">EPI</option>
-                                    <option value="Material">Material</option>
+                                    <option value="Material">Produto</option>
                                 </select>
                             </div>
                             
@@ -132,10 +133,10 @@
                                     <label> Tamanho: </label>
                                     <select id="tamanhoEpi" required>
                                         <option value="Único">Único</option>
-                                        <option value="P">P</option>
-                                        <option value="M">M</option>
-                                        <option value="G">G</option>
-                                        <option value="GG">GG</option>
+                                        <option value="P">7</option>
+                                        <option value="M">8</option>
+                                        <option value="G">9</option>
+                                        <option value="GG">10</option>
                                     </select>
                                 </div>
                             </div>
@@ -153,15 +154,6 @@
                                 </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label> Empresa: </label>
-                                <select id="empresaCadastro" required>
-                                    <option value="">Selecione uma empresa</option>
-                                    <option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>
-                                    <option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>
-                                    <option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>
-                                </select>
-                            </div>
                             <div class="form-group">
                                 <label> Estoque Atual: </label>
                                 <input type="number" id="estoqueAtualCadastro" required>

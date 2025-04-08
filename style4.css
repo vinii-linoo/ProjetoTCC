@@ -1,6 +1,6 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #ccc;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f0f0f0;
     margin: 0;
     padding: 0;
 }
@@ -13,15 +13,16 @@ body {
 }
 
 .container {
-    background: #F5F5F5;
+    background: #ffffff;
     width: 1200px;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     margin: 20px;
+    border-radius: 5px;
 }
 
 header {
-    background-color: #eee;
+    background-color: #074746; /* Verde principal do logo */
     padding: 15px 0;
     width: 100%;
     height: 100px;
@@ -29,7 +30,7 @@ header {
     top: 0;
     left: 0;
     z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
 }
@@ -47,32 +48,40 @@ nav {
 .page-title {
     margin: 0;
     font-size: 24px;
-    color: #333;
+    color: white;
     flex-grow: 1;
     text-align: center;
+    font-weight: bold;
 }
 
 header .logo {
-    width: 100px;
+    width: 80px;
     height: auto;
     margin-right: 20px;
 }
 
 .back-link {
-    color: green;
+    color: white;
     font-weight: bold;
     text-decoration: none;
-    border-bottom: 1px solid green;
+    border-bottom: 2px solid white;
     padding: 5px;
     margin-left: auto;
+    transition: all 0.3s;
+}
+
+.back-link:hover {
+    color: #e0e0e0;
+    border-bottom-color: #e0e0e0;
 }
 
 .content {
     display: flex;
     margin-top: 20px;
-    background: #D3D3D3;
+    background: #ffffff;
     padding: 20px;
     min-height: 500px;
+    border-radius: 5px;
 }
 
 .sidebar {
@@ -80,56 +89,64 @@ header .logo {
     padding-right: 20px;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid #e0e0e0;
 }
 
 .main {
     width: 75%;
-    background: #C4C4C4;
+    background: #f9f9f9;
     padding: 20px;
     overflow-y: auto;
+    border-radius: 5px;
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.radio-option:hover {
+    background-color: #e8f5e9;
+}
+
+.radio-option span {
+    font-size: 16px;
+    font-weight: 500;
+    margin-left: 10px;
 }
 
 input[type="radio"] {
     appearance: none;
     width: 16px;
     height: 16px;
-    border: 2px solid #a5a5a5; /* Cor da borda */
+    border: 2px solid #1f9e9b;
     border-radius: 50%;
     position: relative;
     cursor: pointer;
 }
 
 input[type="radio"]:checked {
-    background-color: #000000; /* Cor do preenchimento quando selecionado */
+    border-color: #1f9e9b;
 }
 
-input[type="radio"]::before {
+input[type="radio"]:checked::before {
     content: "";
     width: 8px;
     height: 8px;
-    background-color: #000000;
+    background-color: #1f9e9b;
     border-radius: 50%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: none;
-}
-
-input[type="radio"]:checked::before {
     display: block;
 }
 
-.radio-option span {
-    font-size: 16px;
-}
 .form-group {
     display: flex;
     justify-content: space-between;
@@ -139,16 +156,19 @@ input[type="radio"]:checked::before {
 
 .form-group label {
     flex: 1;
-    margin-right: 5px;
+    margin-right: 10px;
+    font-weight: bold;
+    color: #1f9e9b;
 }
 
 .form-group input, 
 .form-group select {
     flex: 2;
     padding: 8px;
-    background: #a7a7a7;
-    border: none;
+    background: #ffffff;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    font-family: inherit;
 }
 
 .buttons {
@@ -162,7 +182,7 @@ input[type="radio"]:checked::before {
 .delete-section {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid #a7a7a7;
+    border-top: 1px solid #e0e0e0;
 }
 
 .delete-section .form-group {
@@ -180,78 +200,110 @@ button {
     border: none;
     cursor: pointer;
     width: 100%;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: all 0.3s;
     border-radius: 4px;
     font-weight: bold;
 }
 
 .save {
-    background-color: #A0A0A0;
-    color: black;
+    background-color: #1f9e9b;
+    color: white;
 }
 
 .exit {
-    background-color: #A0A0A0;
-    color: black;
+    background-color: #616161;
+    color: white;
 }
 
 .delete {
-    background-color: #ff0800;
+    background-color: #c62828;
     color: white;
     margin-top: 10px;
 }
 
 button:hover {
+    opacity: 0.9;
     transform: translateY(-2px);
 }
 
-.save:hover {
-    background-color: #8a8a8a;
-}
-
-.exit:hover {
-    background-color: #8a8a8a;
-}
-
-.delete:hover {
-    background-color: #c90700;
-}
-
 .estoque-critico {
-    color: red;
+    color: #c62828;
     font-weight: bold;
     background-color: #ffebee;
-    padding: 5px;
+    padding: 5px 8px;
     border-radius: 3px;
 }
 
-#listaMovimentacoes, 
+/* Estilo para a lista de estoque */
 #listaEstoque {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+#listaEstoque li {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #1f9e9b;
+}
+
+#listaEstoque li.estoque-critico-item {
+    border-left-color: #c62828;
+    background-color: #fff5f5;
+}
+
+.estoque-item-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #1f9e9b;
+}
+
+.estoque-item-value {
+    font-weight: 500;
+}
+
+.estoque-item-status {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e0e0e0;
+    font-size: 14px;
+}
+
+/* Lista de movimentações */
+#listaMovimentacoes {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-#listaMovimentacoes li, 
-#listaEstoque li {
-    padding: 8px;
-    margin-bottom: 5px;
-    background-color: #e0e0e0;
-    border-radius: 3px;
+#listaMovimentacoes li {
+    padding: 12px;
+    margin-bottom: 8px;
+    background-color: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-left: 3px solid #1f9e9b;
 }
 
 .movimentacoes-salvas {
-    margin-top: 20px;
-    background: #C4C4C4;
-    padding: 15px;
+    margin-top: 30px;
+    background: #ffffff;
+    padding: 20px;
     border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .movimentacoes-salvas h2 {
     margin-top: 0;
-    color: #333;
-    border-bottom: 1px solid #999;
-    padding-bottom: 5px;
+    color: #1f9e9b;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    font-weight: bold;
 }
 
 @media (max-width: 768px) {
@@ -267,7 +319,7 @@ button:hover {
         width: 100%;
     }
     
-    header .logo {
-        margin-left: 0;
+    #listaEstoque {
+        grid-template-columns: 1fr;
     }
 }
