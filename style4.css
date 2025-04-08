@@ -111,7 +111,7 @@ header .logo {
 }
 
 .radio-option:hover {
-    background-color: #e8f5e9;
+    background-color: #1f9e9c1f;
 }
 
 .radio-option span {
@@ -201,7 +201,7 @@ button {
     cursor: pointer;
     width: 100%;
     transition: all 0.3s;
-    border-radius: 4px;
+    border-radius: 10px;
     font-weight: bold;
 }
 
