@@ -216,9 +216,21 @@ button {
 }
 
 .delete {
-    background-color: #c62828;
+    background-color: #ff0000;
     color: white;
     margin-top: 10px;
+}
+
+.save:hover {
+    background-color: #156968;
+}
+
+.exit:hover {
+    background-color: #333333;
+}
+
+.delete:hover {
+    background-color: #ca0000;
 }
 
 button:hover {
