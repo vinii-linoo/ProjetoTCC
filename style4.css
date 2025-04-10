@@ -335,3 +335,138 @@ button:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* Estilos para o filtro de estoque */
+/* Estilo para o cabeçalho do estoque com filtro */
+.estoque-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.estoque-header h2 {
+    margin: 0;
+    color: #1f9e9b;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Container do filtro */
+.filtro-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilos para o select do filtro */
+.filtro-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: #ffffff;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 180px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    appearance: none;
+}
+
+.filtro-select:hover {
+    border-color: #9ca3af;
+}
+
+/* Estilos para o input do filtro */
+.filtro-input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #374151;
+    transition: all 0.2s;
+    min-width: 200px;
+}
+
+.filtro-input:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    border-color: #e5e7eb;
+}
+
+/* Estilo para os itens filtrados */
+.item-filtrado {
+    background-color: #f8fafc;
+    border-left: 3px solid #1f9e9b;
+}
+
+/* Efeito de placeholder */
+.filtro-input::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .estoque-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .filtro-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .filtro-select,
+    .filtro-input {
+        width: 100%;
+    }
+}
+
+/* Efeitos de transição para suavizar mudanças */
+.filtro-select,
+.filtro-input {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Estilo quando não há resultados */
+.sem-resultados {
+    text-align: center;
+    padding: 20px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Feedback visual durante o filtro */
+.filtrando {
+    position: relative;
+}
+
+.filtrando::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(31, 158, 155, 0.2);
+    border-top-color: #1f9e9b;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}

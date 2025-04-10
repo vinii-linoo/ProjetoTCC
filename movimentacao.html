@@ -98,10 +98,24 @@
 
                     <!-- Tela de Estoque -->
                     <div id="estoqueContent" style="display: none;">
-                        <h2> Estoque </h2>
+                        <div class="estoque-header">
+                            <h2>Estoque</h2>
+                            <div class="filtro-container">
+                                <select id="tipoFiltroEstoque" class="filtro-select">
+                                    <option value="">Filtrar</option>
+                                    <option value="codigo">Código do Produto</option>
+                                    <option value="nome">Nome do Produto</option>
+                                </select>
+                                <input type="text" id="campoFiltroEstoque" class="filtro-input" placeholder="Digite para filtrar..." disabled>
+                            </div>
+                        </div>
+                        
                         <ul id="listaEstoque"></ul>
+                        
+                        <div id="semResultados" class="sem-resultados" style="display: none;">
+                            Nenhum item encontrado com os critérios de filtro.
+                        </div>
                     </div>
-
                     <!-- Tela de Cadastro de Item -->
                     <div id="cadastroItemContent" style="display: none;">
                         <form id="cadastroItemForm">
