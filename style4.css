@@ -470,3 +470,68 @@ button:hover {
 @keyframes spin {
     to { transform: translateY(-50%) rotate(360deg); }
 }
+
+/* Estilos para o alerta personalizado */
+.custom-alert {
+    position: fixed;
+    top: 150px;
+    right: 30px;
+    width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 1000;
+    display: none;
+    animation: slideIn 0.3s ease-out;
+}
+
+.custom-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.custom-alert-title {
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+.custom-alert-close {
+    color: #ff0000;
+    font-size: 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.custom-alert-body {
+    padding: 15px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.custom-alert-timer {
+    height: 4px;
+    background: #ff0000;
+    width: 100%;
+    animation: timer 5s linear forwards;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes timer {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}

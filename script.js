@@ -1,59 +1,60 @@
-    // Funções de login (se necessário)
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
+// Funções de login
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
 
-    function validateEmail(email) {
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(email);
-    }
+function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+if (loginForm) {
+    loginForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-            const user = JSON.parse(localStorage.getItem(email));
+        const user = JSON.parse(localStorage.getItem(email));
 
-            if (user && user.password === password) {
-                alert('Login bem-sucedido!');
-                window.location.href = 'movimentacao.html';
-            } else {
-                alert('E-mail ou senha incorretos.');
-            }
-        });
-    }
+        if (user && user.password === password) {
+            alert('Login bem-sucedido!');
+            window.location.href = 'movimentacao.html';
+        } else {
+            alert('E-mail ou senha incorretos.');
+        }
+    });
+}
 
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const newUsername = document.getElementById('newUsername').value;
-            const newEmail = document.getElementById('newEmail').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+if (registerForm) {
+    registerForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const newUsername = document.getElementById('newUsername').value;
+        const newEmail = document.getElementById('newEmail').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (!validateEmail(newEmail)) {
-                alert('Por favor, insira um e-mail válido.');
-                return;
-            }
+        if (!validateEmail(newEmail)) {
+            alert('Por favor, insira um e-mail válido.');
+            return;
+        }
 
-            if (newPassword !== confirmPassword) {
-                alert('As senhas não coincidem!');
-                return;
-            }
+        if (newPassword !== confirmPassword) {
+            alert('As senhas não coincidem!');
+            return;
+        }
 
-            if (localStorage.getItem(newEmail)) {
-                alert('E-mail já cadastrado!');
-            } else {
-                localStorage.setItem(newEmail, JSON.stringify({
-                    username: newUsername,
-                    password: newPassword
-                }));
-                alert('Registro bem-sucedido!');
-                window.location.href = 'login.html';
-            }
-        });
-    }
+        if (localStorage.getItem(newEmail)) {
+            alert('E-mail já cadastrado!');
+        } else {
+            localStorage.setItem(newEmail, JSON.stringify({
+                username: newUsername,
+                password: newPassword
+            }));
+            alert('Registro bem-sucedido!');
+            window.location.href = 'login.html';
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Variáveis do sistema principal
     const formMovimentacao = document.getElementById('cadastroMovimentacaoForm');
@@ -94,6 +95,59 @@ document.addEventListener('DOMContentLoaded', function() {
     dataInput.min = '2025-01-01';
     dataInput.max = '2026-01-01';
     dataInput.valueAsDate = new Date();
+
+    // Função para mostrar alerta personalizado
+    function showCustomAlert(message) {
+        const alert = document.getElementById('customAlert');
+        const alertMessage = document.getElementById('customAlertMessage');
+        const closeButton = document.querySelector('.custom-alert-close');
+        
+        // Configura a mensagem
+        alertMessage.innerHTML = message;
+        
+        // Mostra o alerta
+        alert.style.display = 'block';
+        
+        // Configura o timer para fechar automaticamente após 5 segundos
+        const timer = setTimeout(() => {
+            hideCustomAlert();
+        }, 5000);
+        
+        // Configura o botão de fechar
+        closeButton.onclick = function() {
+            clearTimeout(timer);
+            hideCustomAlert();
+        };
+        
+        // Reinicia a animação do timer
+        document.querySelector('.custom-alert-timer').style.animation = 'none';
+        void document.querySelector('.custom-alert-timer').offsetWidth; // Trigger reflow
+        document.querySelector('.custom-alert-timer').style.animation = 'timer 5s linear forwards';
+    }
+
+    // Função para esconder o alerta
+    function hideCustomAlert() {
+        const alert = document.getElementById('customAlert');
+        alert.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => {
+            alert.style.display = 'none';
+            alert.style.animation = 'slideIn 0.3s ease-out';
+        }, 300);
+    }
+
+    // Função para limpar campos de movimentação
+    function limparCamposMovimentacao() {
+        document.getElementById('quantidade').value = '';
+        selectProduto.value = '';
+        estoqueAtualInput.value = '';
+        tipoItemInput.value = '';
+        detalhesItemInput.value = '';
+        codigoInput.value = '';
+        empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>' +
+                                '<option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>' +
+                                '<option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>' +
+                                '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
+    }
 
     // Evento para o filtro de estoque
     tipoFiltroEstoque.addEventListener('change', function() {
@@ -251,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validar data
     function validarData(data) {
         if (!data) {
-            alert('Por favor, selecione uma data!');
+            showCustomAlert('Por favor, selecione uma data!');
             return false;
         }
 
@@ -260,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dataMaxima = new Date('2026-01-01');
 
         if (dataSelecionada < dataMinima || dataSelecionada > dataMaxima) {
-            alert('A data deve estar entre 01/01/2025 e 01/01/2026!');
+            showCustomAlert('A data deve estar entre 01/01/2025 e 01/01/2026!');
             return false;
         }
 
@@ -279,22 +333,58 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = document.getElementById('data').value;
 
             if (!nomeProduto) {
-                alert('Por favor, selecione um produto!');
+                showCustomAlert('Por favor, selecione um produto!');
                 return;
             }
 
             if (!empresa) {
-                alert('Por favor, selecione uma empresa!');
+                showCustomAlert('Por favor, selecione uma empresa!');
                 return;
             }
 
             if (!quantidade || quantidade <= 0) {
-                alert('Por favor, insira uma quantidade válida!');
+                showCustomAlert('Por favor, insira uma quantidade válida!');
                 return;
             }
 
             if (!validarData(data)) {
                 return;
+            }
+
+            // Obter o item selecionado
+            const itens = JSON.parse(localStorage.getItem('itens')) || [];
+            const itemIndex = itens.findIndex(item => item.nomeProduto === nomeProduto);
+            
+            if (itemIndex === -1) {
+                showCustomAlert('Produto não encontrado!');
+                return;
+            }
+
+            const item = itens[itemIndex];
+            
+            // Verificar se é uma entrada e se ultrapassará o estoque máximo
+            if (selectedValue === 'entrada') {
+                const novoEstoque = item.estoqueAtual + quantidade;
+                
+                if (novoEstoque > item.estoqueMaximo) {
+                    limparCamposMovimentacao();
+                    showCustomAlert(`Não é possível dar entrada de ${quantidade} unidades!<br><br>
+                                    Estoque atual: ${item.estoqueAtual} unidades<br>
+                                    Estoque máximo permitido: ${item.estoqueMaximo} unidades<br>
+                                    Quantidade excedente: ${novoEstoque - item.estoqueMaximo} unidades`);
+                    return;
+                }
+            }
+
+            // Verificar se é uma saída e se há estoque suficiente
+            if (selectedValue === 'saida') {
+                if (item.estoqueAtual < quantidade) {
+                    limparCamposMovimentacao();
+                    showCustomAlert(`Estoque insuficiente para esta saída!<br><br>
+                                    Estoque atual: ${item.estoqueAtual} unidades<br>
+                                    Quantidade solicitada: ${quantidade} unidades`);
+                    return;
+                }
             }
 
             const movimentacao = {
@@ -307,23 +397,16 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             // Atualizar estoque e empresa
-            const itens = JSON.parse(localStorage.getItem('itens')) || [];
-            const itemIndex = itens.findIndex(item => item.nomeProduto === nomeProduto);
-            if (itemIndex !== -1) {
-                // Atualiza a empresa do item
-                itens[itemIndex].empresa = empresa;
-                
-                if (selectedValue === 'entrada') {
-                    itens[itemIndex].estoqueAtual += quantidade;
-                } else if (selectedValue === 'saida') {
-                    if (itens[itemIndex].estoqueAtual < quantidade) {
-                        alert('Estoque insuficiente para esta saída!');
-                        return;
-                    }
-                    itens[itemIndex].estoqueAtual -= quantidade;
-                }
-                localStorage.setItem('itens', JSON.stringify(itens));
+            if (selectedValue === 'entrada') {
+                itens[itemIndex].estoqueAtual += quantidade;
+            } else if (selectedValue === 'saida') {
+                itens[itemIndex].estoqueAtual -= quantidade;
             }
+            
+            // Atualizar a empresa do item
+            itens[itemIndex].empresa = empresa;
+            
+            localStorage.setItem('itens', JSON.stringify(itens));
 
             // Salvar movimentação
             let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
@@ -337,16 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
             atualizarEstoque();
 
             // Limpar formulário
-            document.getElementById('quantidade').value = '';
-            selectProduto.value = '';
-            estoqueAtualInput.value = '';
-            tipoItemInput.value = '';
-            detalhesItemInput.value = '';
-            codigoInput.value = '';
-            empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>' +
-                                      '<option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>' +
-                                      '<option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>' +
-                                      '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
+            limparCamposMovimentacao();
         } else if (selectedValue === 'cadastro') {
             const codigo = codigoCadastroInput.value;
             const nomeProdutoCadastro = document.getElementById('nomeProdutoCadastro').value;
@@ -359,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Validações básicas
             if (!nomeProdutoCadastro || !tipoItem) {
-                alert('Por favor, preencha todos os campos obrigatórios!');
+                showCustomAlert('Por favor, preencha todos os campos obrigatórios!');
                 return;
             }
 
@@ -382,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.tamanho = document.getElementById('tamanhoEpi').value;
                 
                 if (!item.ca) {
-                    alert('Por favor, informe o CA do EPI!');
+                    showCustomAlert('Por favor, informe o CA do EPI!');
                     return;
                 }
             } else if (tipoItem === 'Material') {
@@ -390,14 +464,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.dimensoes = document.getElementById('dimensoesMaterial').value;
                 
                 if (!item.tipoMaterial) {
-                    alert('Por favor, informe o tipo de material!');
+                    showCustomAlert('Por favor, informe o tipo de material!');
                     return;
                 }
                 
                 // Validação do formato das dimensões
                 const dimensoesPattern = /^\d+,\d+x\d+,\d+$/;
                 if (!dimensoesPattern.test(item.dimensoes)) {
-                    alert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
+                    showCustomAlert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
                     return;
                 }
             }
@@ -408,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Verificar se nome já existe (o código é gerado automaticamente)
             const nomeExistente = itens.find(item => item.nomeProduto === nomeProdutoCadastro);
             if (nomeExistente) {
-                alert('Este nome de produto já está cadastrado!');
+                showCustomAlert('Este nome de produto já está cadastrado!');
                 return;
             }
             
@@ -424,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function() {
             gerarNovoCodigo();
             carregarProdutosNoSelect();
             carregarItensParaExclusao();
-            alert('Item cadastrado com sucesso!');
+            showCustomAlert('Item cadastrado com sucesso!');
         }
     });
 
@@ -433,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const nomeProduto = itemParaExcluirSelect.value;
         
         if (!nomeProduto) {
-            alert('Por favor, selecione um item para excluir!');
+            showCustomAlert('Por favor, selecione um item para excluir!');
             return;
         }
         
@@ -454,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
             atualizarEstoque();
             atualizarListaMovimentacoes();
             
-            alert(`Item "${nomeProduto}" excluído com sucesso!`);
+            showCustomAlert(`Item "${nomeProduto}" excluído com sucesso!`);
         }
     });
 
