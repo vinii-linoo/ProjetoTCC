@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Controle de Estoque</title>
-    <link rel="stylesheet" href="../style4.css">
+    <link rel="stylesheet" href="style4.css">
     <link rel="icon" type="image/png" href="img/logo.png">
 </head>
 <body>
     <header>
         <nav>
             <img src="./img/logoBranca.png" alt="Logo" class="logo">
-            <h1 class="page-title">Tela de Movimentações</h1>
+            <h1 class="page-title" id="pageTitle">Tela de Movimentações</h1>
         </nav>
     </header>
+    
     <div class="main-container">
         <div class="container">
             <div class="content">
@@ -34,12 +35,14 @@
                         <input type="radio" name="registro" value="cadastro" class="radio">
                         <span>Cadastro de Item</span>
                     </label>
+                    
                     <div class="buttons">
                         <button class="save" id="saveButton">Salvar</button>
                         <a href="index.html">
                             <button class="exit">Sair</button>
                         </a>
                     </div>
+                    
                     <div class="delete-section">
                         <div class="form-group">
                             <label>Selecione o Item para Excluir:</label>
@@ -50,22 +53,23 @@
                         <button class="delete" id="deleteItemButton">Excluir Item Selecionado</button>
                     </div>
                 </div>
+                
                 <div class="main" id="mainContent">
                     <!-- Tela de Entrada/Saída -->
                     <div id="movimentacaoForm">
                         <form id="cadastroMovimentacaoForm">
                             <div class="form-group">
-                                <label> Código: </label>
+                                <label>Código:</label>
                                 <input type="text" id="codigo" readonly>
                             </div>
                             <div class="form-group">
-                                <label> Nome do Produto: </label>
+                                <label>Nome do Produto:</label>
                                 <select id="nomeProdutoMovimentacao" required>
                                     <option value="">Selecione um produto</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label> Empresa: </label>
+                                <label>Empresa:</label>
                                 <select id="empresa" required>
                                     <option value="">Selecione uma empresa</option>
                                     <option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>
@@ -74,23 +78,23 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label> Estoque Atual: </label>
+                                <label>Estoque Atual:</label>
                                 <input type="number" id="estoqueAtual" readonly>
                             </div>
                             <div class="form-group">
-                                <label> Tipo do Item: </label>
+                                <label>Tipo do Item:</label>
                                 <input type="text" id="tipoItem" readonly>
                             </div>
                             <div class="form-group">
-                                <label> Detalhes: </label>
+                                <label>Detalhes:</label>
                                 <input type="text" id="detalhesItem" readonly>
                             </div>
                             <div class="form-group">
-                                <label> Quantidade: </label>
+                                <label>Quantidade:</label>
                                 <input type="number" id="quantidade" required>
                             </div>
                             <div class="form-group">
-                                <label> Data: </label>
+                                <label>Data:</label>
                                 <input type="date" id="data" required min="2025-01-01" max="2026-01-01">
                             </div>
                         </form>
@@ -99,36 +103,73 @@
                     <!-- Tela de Estoque -->
                     <div id="estoqueContent" style="display: none;">
                         <div class="estoque-header">
-                            <h2>Estoque</h2>
+                            <h2>Controle de Estoque</h2>
                             <div class="filtro-container">
                                 <select id="tipoFiltroEstoque" class="filtro-select">
-                                    <option value="">Filtrar</option>
-                                    <option value="codigo">Código do Produto</option>
-                                    <option value="nome">Nome do Produto</option>
+                                    <option value="">Filtrar por...</option>
+                                    <option value="codigo">Código</option>
+                                    <option value="nome">Nome</option>
+                                    <option value="tipo">Tipo</option>
+                                    <option value="critico">Estoque Crítico</option>
                                 </select>
                                 <input type="text" id="campoFiltroEstoque" class="filtro-input" placeholder="Digite para filtrar..." disabled>
+                                <button id="btnRelatorio" class="report-button">Gerar Relatório</button>
                             </div>
                         </div>
                         
-                        <ul id="listaEstoque"></ul>
+                        <div class="estoque-table-container">
+                            <table id="tabelaEstoque" class="estoque-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Produto</th>
+                                        <th>Tipo</th>
+                                        <th>Estoque Atual</th>
+                                        <th>Status</th>
+                                        <th>Detalhes</th>
+                                        <th>Empresa</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="corpoTabelaEstoque">
+                                    <!-- Dados serão preenchidos via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <div id="semResultados" class="sem-resultados" style="display: none;">
                             Nenhum item encontrado com os critérios de filtro.
                         </div>
+                        
+                        <div class="resumo-estoque">
+                            <div class="resumo-card total">
+                                <h3>Total Itens</h3>
+                                <span id="totalItens">0</span>
+                            </div>
+                            <div class="resumo-card critico">
+                                <h3>Crítico</h3>
+                                <span id="totalCritico">0</span>
+                            </div>
+                            <div class="resumo-card baixo">
+                                <h3>Baixo</h3>
+                                <span id="totalBaixo">0</span>
+                            </div>
+                        </div>
                     </div>
+
                     <!-- Tela de Cadastro de Item -->
                     <div id="cadastroItemContent" style="display: none;">
                         <form id="cadastroItemForm">
                             <div class="form-group">
-                                <label> Código: </label>
+                                <label>Código:</label>
                                 <input type="text" id="codigoCadastro" required>
                             </div>
                             <div class="form-group">
-                                <label> Nome do Produto: </label>
+                                <label>Nome do Produto:</label>
                                 <input type="text" id="nomeProdutoCadastro" required>
                             </div>
                             <div class="form-group">
-                                <label> Tipo do Item: </label>
+                                <label>Tipo do Item:</label>
                                 <select id="tipoItemCadastro" required>
                                     <option value="">Selecione o tipo</option>
                                     <option value="EPI">EPI</option>
@@ -139,11 +180,11 @@
                             <!-- Campos específicos para EPI -->
                             <div id="epiFields" style="display: none;">
                                 <div class="form-group">
-                                    <label> CA (Certificado de Aprovação): </label>
+                                    <label>CA (Certificado de Aprovação):</label>
                                     <input type="text" id="caEpi" required>
                                 </div>
                                 <div class="form-group">
-                                    <label> Tamanho: </label>
+                                    <label>Tamanho:</label>
                                     <select id="tamanhoEpi" required>
                                         <option value="Único">Único</option>
                                         <option value="P">7</option>
@@ -157,48 +198,77 @@
                             <!-- Campos específicos para Material -->
                             <div id="materialFields" style="display: none;">
                                 <div class="form-group">
-                                    <label> Tipo de Material: </label>
+                                    <label>Tipo de Material:</label>
                                     <input type="text" id="tipoMaterial" placeholder="Ex: Aço, Ferro, Alumínio" required>
                                 </div>
                                 <div class="form-group">
-                                    <label> Dimensões (formato: 1,25x1,50): </label>
+                                    <label>Dimensões (formato: 1,25x1,50):</label>
                                     <input type="text" id="dimensoesMaterial" placeholder="Ex: 1,25x1,50" required
                                            pattern="\d+,\d+x\d+,\d+" title="Digite no formato 1,25x1,50">
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label> Estoque Atual: </label>
+                                <label>Estoque Atual:</label>
                                 <input type="number" id="estoqueAtualCadastro" required>
                             </div>
                             <div class="form-group">
-                                <label> Estoque Crítico: </label>
+                                <label>Estoque Crítico:</label>
                                 <input type="number" id="estoqueCritico" required>
                             </div>
                             <div class="form-group">
-                                <label> Estoque de Segurança: </label>
+                                <label>Estoque de Segurança:</label>
                                 <input type="number" id="estoqueSeguranca" required>
                             </div>
                             <div class="form-group">
-                                <label> Estoque Máximo: </label>
+                                <label>Estoque Máximo:</label>
                                 <input type="number" id="estoqueMaximo" required>
                             </div>
                             <div class="form-group">
-                                <label> Estoque Mínimo para Compra: </label>
+                                <label>Estoque Mínimo para Compra:</label>
                                 <input type="number" id="estoqueMinimo" required>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+            
             <!-- Lista de Movimentações Salvas -->
             <div class="movimentacoes-salvas">
-                <h2> Movimentações Salvas </h2>
-                <ul id="listaMovimentacoes"></ul>
+                <div class="movimentacoes-header">
+                    <h2>Histórico de Movimentações</h2>
+                    <div class="filtro-movimentacoes">
+                        <select id="filtroTipoMovimentacao" class="filtro-select">
+                            <option value="">Todas</option>
+                            <option value="entrada">Entradas</option>
+                            <option value="saida">Saídas</option>
+                        </select>
+                        <input type="text" id="filtroMovimentacao" class="filtro-input" placeholder="Filtrar por produto...">
+                        <button id="btnLimparFiltros" class="report-button">Limpar Filtros</button>
+                    </div>
+                </div>
+                <div class="movimentacoes-table-container">
+                    <table class="movimentacoes-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Código</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Empresa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaMovimentacoes">
+                            <!-- Dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Alertas Personalizados -->
     <div id="customAlert" class="custom-alert">
         <div class="custom-alert-timer"></div>
         <div class="custom-alert-header">
@@ -206,6 +276,46 @@
             <div class="custom-alert-close">&times;</div>
         </div>
         <div class="custom-alert-body" id="customAlertMessage"></div>
+    </div>
+
+    <!-- Confirmação Personalizada -->
+    <div id="customConfirm" class="custom-alert" style="display: none;">
+        <div class="custom-alert-timer" style="animation: none;"></div>
+        <div class="custom-alert-header">
+            <div class="custom-alert-title">Confirmação</div>
+        </div>
+        <div class="custom-alert-body" id="customConfirmMessage"></div>
+        <div class="custom-confirm-buttons">
+            <button id="confirmYes" class="confirm-button confirm-yes">Sim</button>
+            <button id="confirmNo" class="confirm-button confirm-no">Não</button>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico -->
+    <div id="historicoModal" class="custom-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="historicoModalTitle">Histórico de Movimentações</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-table-container">
+                    <table class="modal-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Quantidade</th>
+                                <th>Empresa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicoModalBody">
+                            <!-- Conteúdo será preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

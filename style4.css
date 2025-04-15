@@ -1,3 +1,4 @@
+/* Estilos gerais */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background-color: #f0f0f0;
@@ -22,7 +23,7 @@ body {
 }
 
 header {
-    background-color: #074746; /* Verde principal do logo */
+    background-color: #074746;
     padding: 15px 0;
     width: 100%;
     height: 100px;
@@ -58,21 +59,6 @@ header .logo {
     width: 80px;
     height: auto;
     margin-right: 20px;
-}
-
-.back-link {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-    border-bottom: 2px solid white;
-    padding: 5px;
-    margin-left: auto;
-    transition: all 0.3s;
-}
-
-.back-link:hover {
-    color: #e0e0e0;
-    border-bottom-color: #e0e0e0;
 }
 
 .content {
@@ -238,106 +224,7 @@ button:hover {
     transform: translateY(-2px);
 }
 
-.estoque-critico {
-    color: #c62828;
-    font-weight: bold;
-    background-color: #ffebee;
-    padding: 5px 8px;
-    border-radius: 3px;
-}
-
-/* Estilo para a lista de estoque */
-#listaEstoque {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-#listaEstoque li {
-    background: #ffffff;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-left: 4px solid #1f9e9b;
-}
-
-#listaEstoque li.estoque-critico-item {
-    border-left-color: #c62828;
-    background-color: #fff5f5;
-}
-
-.estoque-item-header {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #1f9e9b;
-}
-
-.estoque-item-value {
-    font-weight: 500;
-}
-
-.estoque-item-status {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed #e0e0e0;
-    font-size: 14px;
-}
-
-/* Lista de movimentações */
-#listaMovimentacoes {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#listaMovimentacoes li {
-    padding: 12px;
-    margin-bottom: 8px;
-    background-color: #ffffff;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    border-left: 3px solid #1f9e9b;
-}
-
-.movimentacoes-salvas {
-    margin-top: 30px;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.movimentacoes-salvas h2 {
-    margin-top: 0;
-    color: #1f9e9b;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 10px;
-    font-weight: bold;
-}
-
-@media (max-width: 768px) {
-    .main-container {
-        padding-top: 150px;
-    }
-    
-    .content {
-        flex-direction: column;
-    }
-    
-    .sidebar, .main {
-        width: 100%;
-    }
-    
-    #listaEstoque {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Estilos para o filtro de estoque */
-/* Estilo para o cabeçalho do estoque com filtro */
+/* Estilos para a tabela de estoque */
 .estoque-header {
     display: flex;
     justify-content: space-between;
@@ -356,14 +243,12 @@ button:hover {
     font-weight: 600;
 }
 
-/* Container do filtro */
 .filtro-container {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Estilos para o select do filtro */
 .filtro-select {
     padding: 8px 12px;
     border: 1px solid #d1d5db;
@@ -385,7 +270,6 @@ button:hover {
     border-color: #9ca3af;
 }
 
-/* Estilos para o input do filtro */
 .filtro-input {
     padding: 8px 12px;
     border: 1px solid #d1d5db;
@@ -403,75 +287,212 @@ button:hover {
     border-color: #e5e7eb;
 }
 
-/* Estilo para os itens filtrados */
-.item-filtrado {
-    background-color: #f8fafc;
-    border-left: 3px solid #1f9e9b;
+.estoque-table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-/* Efeito de placeholder */
-.filtro-input::placeholder {
-    color: #9ca3af;
-    opacity: 1;
+.estoque-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .estoque-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-    
-    .filtro-container {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .filtro-select,
-    .filtro-input {
-        width: 100%;
-    }
+.estoque-table th {
+    background-color: #1f9e9b;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
 }
 
-/* Efeitos de transição para suavizar mudanças */
-.filtro-select,
-.filtro-input {
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+.estoque-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
 }
 
-/* Estilo quando não há resultados */
-.sem-resultados {
+.estoque-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.estoque-table tr.estoque-critico {
+    background-color: #ffebee;
+}
+
+.estoque-table tr.estoque-critico td {
+    color: #c62828;
+    font-weight: 500;
+}
+
+.estoque-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-normal {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-baixo {
+    background-color: #fff8e1;
+    color: #ff8f00;
+}
+
+.status-critico {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* Resumo do estoque */
+.resumo-estoque {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.resumo-card {
+    flex: 1;
+    padding: 15px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     text-align: center;
+}
+
+.resumo-card h3 {
+    margin-top: 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.resumo-card span {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.resumo-card.total {
+    border-top: 4px solid #1f9e9b;
+}
+
+.resumo-card.critico {
+    border-top: 4px solid #c62828;
+}
+
+.resumo-card.baixo {
+    border-top: 4px solid #ff8f00;
+}
+
+/* Botão de relatório */
+.report-button {
+    padding: 8px 15px;
+    background-color: #1f9e9b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.report-button:hover {
+    background-color: #156968;
+    transform: translateY(-2px);
+}
+
+/* Ações na tabela */
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+    color: #555;
+    transition: all 0.2s;
+    font-size: 16px;
+}
+
+.action-button:hover {
+    color: #1f9e9b;
+    transform: scale(1.1);
+}
+
+/* Estilos para o histórico de movimentações */
+.movimentacoes-salvas {
+    margin-top: 30px;
+    background: #ffffff;
     padding: 20px;
-    color: #6b7280;
-    font-style: italic;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Feedback visual durante o filtro */
-.filtrando {
-    position: relative;
+.movimentacoes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.filtrando::after {
-    content: "";
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(31, 158, 155, 0.2);
-    border-top-color: #1f9e9b;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+.movimentacoes-header h2 {
+    margin: 0;
+    color: #1f9e9b;
+    font-size: 20px;
 }
 
-@keyframes spin {
-    to { transform: translateY(-50%) rotate(360deg); }
+.filtro-movimentacoes {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
-/* Estilos para o alerta personalizado */
+.movimentacoes-table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.movimentacoes-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.movimentacoes-table th {
+    background-color: #1f9e9b;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.movimentacoes-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.movimentacoes-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.movimentacao-entrada {
+    color: #2e7d32;
+    font-weight: 500;
+}
+
+.movimentacao-saida {
+    color: #c62828;
+    font-weight: 500;
+}
+
+/* Alertas personalizados */
 .custom-alert {
     position: fixed;
     top: 150px;
@@ -521,6 +542,123 @@ button:hover {
     animation: timer 5s linear forwards;
 }
 
+/* Confirmação personalizada */
+.custom-confirm-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.confirm-button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.confirm-yes {
+    background-color: #1f9e9b;
+    color: white;
+}
+
+.confirm-no {
+    background-color: #ff4444;
+    color: white;
+}
+
+.confirm-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Modal de Histórico */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s;
+}
+
+.modal-header {
+    background-color: #1f9e9b;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-close {
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    color: #ff4444;
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(70vh - 60px);
+}
+
+.modal-table-container {
+    overflow-x: auto;
+}
+
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modal-table th {
+    background-color: #f5f5f5;
+    color: #333;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.modal-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Animações */
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -534,4 +672,67 @@ button:hover {
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .main-container {
+        padding-top: 150px;
+    }
+    
+    .content {
+        flex-direction: column;
+    }
+    
+    .sidebar, .main {
+        width: 100%;
+    }
+    
+    .estoque-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .resumo-estoque {
+        flex-direction: column;
+    }
+    
+    .filtro-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filtro-select, .filtro-input {
+        width: 100%;
+    }
+    
+    .movimentacoes-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filtro-movimentacoes {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .filtro-movimentacoes select,
+    .filtro-movimentacoes input,
+    .filtro-movimentacoes button {
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
 }

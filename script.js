@@ -1,4 +1,3 @@
-// Funções de login
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
@@ -6,6 +5,51 @@ function validateEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
+
+function showTempMessage(message, redirectUrl = null) {
+    // Cria elemento para a mensagem
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = message;
+    messageDiv.style.position = 'fixed';
+    messageDiv.style.top = '20px';
+    messageDiv.style.left = '50%';
+    messageDiv.style.transform = 'translateX(-50%)';
+    messageDiv.style.backgroundColor = '#1f9e9b';
+    messageDiv.style.color = 'white';
+    messageDiv.style.padding = '15px 25px';
+    messageDiv.style.borderRadius = '5px';
+    messageDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    messageDiv.style.zIndex = '1000';
+    messageDiv.style.animation = 'fadeIn 0.3s ease-out';
+    
+    // Adiciona ao body
+    document.body.appendChild(messageDiv);
+    
+    // Remove após 2 segundos
+    setTimeout(() => {
+        messageDiv.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => {
+            document.body.removeChild(messageDiv);
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            }
+        }, 300);
+    }, 1000);
+}
+
+// Adiciona os estilos de animação dinamicamente
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateX(-50%) translateY(0); }
+        to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    }
+`;
+document.head.appendChild(style);
 
 if (loginForm) {
     loginForm.addEventListener('submit', function(event) {
@@ -16,10 +60,9 @@ if (loginForm) {
         const user = JSON.parse(localStorage.getItem(email));
 
         if (user && user.password === password) {
-            alert('Login bem-sucedido!');
-            window.location.href = 'movimentacao.html';
+            showTempMessage('Login bem-sucedido!', 'movimentacao.html');
         } else {
-            alert('E-mail ou senha incorretos.');
+            showTempMessage('E-mail ou senha incorretos.');
         }
     });
 }
@@ -33,34 +76,40 @@ if (registerForm) {
         const confirmPassword = document.getElementById('confirmPassword').value;
 
         if (!validateEmail(newEmail)) {
-            alert('Por favor, insira um e-mail válido.');
+            showTempMessage('Por favor, insira um e-mail válido.');
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert('As senhas não coincidem!');
+            showTempMessage('As senhas não coincidem!');
             return;
         }
 
         if (localStorage.getItem(newEmail)) {
-            alert('E-mail já cadastrado!');
+            showTempMessage('E-mail já cadastrado!');
         } else {
             localStorage.setItem(newEmail, JSON.stringify({
                 username: newUsername,
                 password: newPassword
             }));
-            alert('Registro bem-sucedido!');
-            window.location.href = 'login.html';
+            showTempMessage('Registro bem-sucedido!', 'login.html');
         }
     });
+}
+
+// Função auxiliar para alerta + redirecionamento
+async function showAlertAndRedirect(message, redirectUrl) {
+    showCustomAlert(message);
+    
+    // Aguarda 1.5 segundos antes de redirecionar
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    window.location.href = redirectUrl;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     // Variáveis do sistema principal
     const formMovimentacao = document.getElementById('cadastroMovimentacaoForm');
     const formCadastroItem = document.getElementById('cadastroItemForm');
-    const listaMovimentacoes = document.getElementById('listaMovimentacoes');
-    const listaEstoque = document.getElementById('listaEstoque');
     const saveButton = document.getElementById('saveButton');
     const mainContent = document.getElementById('mainContent');
     const movimentacaoForm = document.getElementById('movimentacaoForm');
@@ -77,6 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteItemButton = document.getElementById('deleteItemButton');
     const itemParaExcluirSelect = document.getElementById('itemParaExcluir');
     const codigoCadastroInput = document.getElementById('codigoCadastro');
+    const pageTitle = document.getElementById('pageTitle');
     
     // Variáveis para cadastro de itens
     const tipoItemCadastro = document.getElementById('tipoItemCadastro');
@@ -90,6 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variáveis para o filtro de estoque
     const tipoFiltroEstoque = document.getElementById('tipoFiltroEstoque');
     const campoFiltroEstoque = document.getElementById('campoFiltroEstoque');
+    const btnRelatorio = document.getElementById('btnRelatorio');
+    
+    // Variáveis para o filtro de movimentações
+    const filtroTipoMovimentacao = document.getElementById('filtroTipoMovimentacao');
+    const filtroMovimentacao = document.getElementById('filtroMovimentacao');
+    const btnLimparFiltros = document.getElementById('btnLimparFiltros');
 
     // Configurações iniciais
     dataInput.min = '2025-01-01';
@@ -102,30 +158,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const alertMessage = document.getElementById('customAlertMessage');
         const closeButton = document.querySelector('.custom-alert-close');
         
-        // Configura a mensagem
         alertMessage.innerHTML = message;
-        
-        // Mostra o alerta
         alert.style.display = 'block';
         
-        // Configura o timer para fechar automaticamente após 5 segundos
         const timer = setTimeout(() => {
             hideCustomAlert();
         }, 5000);
         
-        // Configura o botão de fechar
         closeButton.onclick = function() {
             clearTimeout(timer);
             hideCustomAlert();
         };
         
-        // Reinicia a animação do timer
         document.querySelector('.custom-alert-timer').style.animation = 'none';
-        void document.querySelector('.custom-alert-timer').offsetWidth; // Trigger reflow
+        void document.querySelector('.custom-alert-timer').offsetWidth;
         document.querySelector('.custom-alert-timer').style.animation = 'timer 5s linear forwards';
     }
 
-    // Função para esconder o alerta
     function hideCustomAlert() {
         const alert = document.getElementById('customAlert');
         alert.style.animation = 'fadeOut 0.3s ease-out';
@@ -135,7 +184,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     }
 
-    // Função para limpar campos de movimentação
+    // Função para confirm personalizado
+    function showCustomConfirm(message, callback) {
+        const confirmBox = document.getElementById('customConfirm');
+        const confirmMessage = document.getElementById('customConfirmMessage');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
+
+        confirmMessage.textContent = message;
+        confirmBox.style.display = 'block';
+
+        confirmYes.onclick = function() {
+            confirmBox.style.display = 'none';
+            callback(true);
+        };
+
+        confirmNo.onclick = function() {
+            confirmBox.style.display = 'none';
+            callback(false);
+        };
+    }
+
     function limparCamposMovimentacao() {
         document.getElementById('quantidade').value = '';
         selectProduto.value = '';
@@ -149,76 +218,250 @@ document.addEventListener('DOMContentLoaded', function() {
                                 '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
     }
 
-    // Evento para o filtro de estoque
-    tipoFiltroEstoque.addEventListener('change', function() {
-        if (this.value) {
-            campoFiltroEstoque.disabled = false;
-            campoFiltroEstoque.placeholder = `Digite o ${this.value === 'codigo' ? 'código' : 'nome'}...`;
-            campoFiltroEstoque.focus();
-        } else {
-            campoFiltroEstoque.disabled = true;
-            campoFiltroEstoque.value = '';
-            atualizarEstoque();
-        }
-    });
-
-    // Evento para filtrar enquanto digita
-    campoFiltroEstoque.addEventListener('input', function() {
-        if (tipoFiltroEstoque.value) {
-            atualizarEstoque();
-        }
-    });
-
-    // Mostrar/ocultar campos de EPI ou Material conforme seleção
-    tipoItemCadastro.addEventListener('change', function() {
-        const tipoSelecionado = this.value;
+    function atualizarEstoque() {
+        const corpoTabela = document.getElementById('corpoTabelaEstoque');
+        corpoTabela.innerHTML = '';
+        const itens = JSON.parse(localStorage.getItem('itens')) || [];
         
-        epiFields.style.display = 'none';
-        materialFields.style.display = 'none';
+        const tipoFiltro = tipoFiltroEstoque.value;
+        const valorFiltro = campoFiltroEstoque.value.toLowerCase();
         
-        if (tipoSelecionado === 'EPI') {
-            epiFields.style.display = 'block';
-        } else if (tipoSelecionado === 'Material') {
-            materialFields.style.display = 'block';
-        }
-    });
+        let totalItens = 0;
+        let totalCritico = 0;
+        let totalBaixo = 0;
+        
+        const itensFiltrados = itens.filter(item => {
+            if (!tipoFiltro) return true;
+            
+            if (tipoFiltro === 'codigo') {
+                return item.codigo.toLowerCase().includes(valorFiltro);
+            } else if (tipoFiltro === 'nome') {
+                return item.nomeProduto.toLowerCase().includes(valorFiltro);
+            } else if (tipoFiltro === 'tipo') {
+                return item.tipoItem.toLowerCase().includes(valorFiltro);
+            } else if (tipoFiltro === 'critico') {
+                return item.estoqueAtual <= item.estoqueCritico;
+            }
+            return true;
+        });
+        
+        document.getElementById('semResultados').style.display = 
+            itensFiltrados.length === 0 ? 'block' : 'none';
+        
+        itensFiltrados.forEach(item => {
+            totalItens++;
+            
+            let status, statusClass;
+            if (item.estoqueAtual <= item.estoqueCritico) {
+                status = 'Crítico';
+                statusClass = 'status-critico';
+                totalCritico++;
+            } else if (item.estoqueAtual <= item.estoqueMinimo) {
+                status = 'Baixo';
+                statusClass = 'status-baixo';
+                totalBaixo++;
+            } else {
+                status = 'Normal';
+                statusClass = 'status-normal';
+            }
+            
+            let detalhes = '';
+            if (item.tipoItem === 'EPI') {
+                detalhes = `CA: ${item.ca}, Tamanho: ${item.tamanho}`;
+            } else if (item.tipoItem === 'Material') {
+                detalhes = `Tipo: ${item.tipoMaterial}, Dimensões: ${item.dimensoes}`;
+            }
+            
+            const tr = document.createElement('tr');
+            if (status === 'Crítico') tr.classList.add('estoque-critico');
+            
+            tr.innerHTML = `
+                <td>${item.codigo}</td>
+                <td>${item.nomeProduto}</td>
+                <td>${item.tipoItem}</td>
+                <td>${item.estoqueAtual}</td>
+                <td><span class="estoque-status ${statusClass}">${status}</span></td>
+                <td>${detalhes}</td>
+                <td>${item.empresa || 'Não informada'}</td>
+                <td>
+                    <button class="action-button" title="Editar" onclick="editarItem('${item.codigo}')">✏️</button>
+                    <button class="action-button" title="Histórico" onclick="verHistorico('${item.codigo}')">📊</button>
+                </td>
+            `;
+            
+            corpoTabela.appendChild(tr);
+        });
+        
+        document.getElementById('totalItens').textContent = totalItens;
+        document.getElementById('totalCritico').textContent = totalCritico;
+        document.getElementById('totalBaixo').textContent = totalBaixo;
+    }
 
-    // Função para alternar entre as telas
+    window.editarItem = function(codigo) {
+        document.querySelector('input[value="cadastro"]').click();
+        
+        const itens = JSON.parse(localStorage.getItem('itens')) || [];
+        const item = itens.find(i => i.codigo === codigo);
+        
+        if (item) {
+            document.getElementById('codigoCadastro').value = item.codigo;
+            document.getElementById('nomeProdutoCadastro').value = item.nomeProduto;
+            document.getElementById('tipoItemCadastro').value = item.tipoItem;
+            document.getElementById('estoqueAtualCadastro').value = item.estoqueAtual;
+            document.getElementById('estoqueCritico').value = item.estoqueCritico;
+            document.getElementById('estoqueSeguranca').value = item.estoqueSeguranca;
+            document.getElementById('estoqueMaximo').value = item.estoqueMaximo;
+            document.getElementById('estoqueMinimo').value = item.estoqueMinimo;
+            
+            if (item.tipoItem === 'EPI') {
+                document.getElementById('caEpi').value = item.ca;
+                document.getElementById('tamanhoEpi').value = item.tamanho;
+                document.getElementById('epiFields').style.display = 'block';
+            } else if (item.tipoItem === 'Material') {
+                document.getElementById('tipoMaterial').value = item.tipoMaterial;
+                document.getElementById('dimensoesMaterial').value = item.dimensoes;
+                document.getElementById('materialFields').style.display = 'block';
+            }
+            
+            showCustomAlert(`Editando item ${item.codigo} - ${item.nomeProduto}`);
+        }
+    }
+
+    window.verHistorico = function(codigo) {
+        const movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
+        const historico = movimentacoes.filter(mov => mov.codigo === codigo);
+        
+        if (historico.length === 0) {
+            showCustomAlert('Nenhuma movimentação encontrada para este item.');
+            return;
+        }
+        
+        // Busca o nome do produto para exibir no título
+        const itens = JSON.parse(localStorage.getItem('itens')) || [];
+        const item = itens.find(i => i.codigo === codigo);
+        const nomeProduto = item ? item.nomeProduto : '';
+        
+        // Atualiza o título da modal
+        document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
+        
+        // Preenche o corpo da tabela
+        const tbody = document.getElementById('historicoModalBody');
+        tbody.innerHTML = '';
+        
+        historico.forEach(mov => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${formatarData(mov.data)}</td>
+                <td class="${mov.registro === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
+                    ${mov.registro === 'entrada' ? 'Entrada' : 'Saída'}
+                </td>
+                <td>${mov.quantidade}</td>
+                <td>${mov.empresa}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        // Exibe a modal
+        const modal = document.getElementById('historicoModal');
+        modal.style.display = 'flex';
+        
+        // Fecha a modal ao clicar no X ou fora do conteúdo
+        document.querySelector('.modal-close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    function formatarData(dataString) {
+        const data = new Date(dataString);
+        return data.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function atualizarListaMovimentacoes() {
+        const listaMovimentacoes = document.getElementById('listaMovimentacoes');
+        listaMovimentacoes.innerHTML = '';
+        const movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
+        
+        const tipoFiltro = filtroTipoMovimentacao.value;
+        const textoFiltro = filtroMovimentacao.value.toLowerCase();
+        
+        const movimentacoesFiltradas = movimentacoes.filter(mov => {
+            const atendeTipo = !tipoFiltro || mov.registro === tipoFiltro;
+            const atendeTexto = !textoFiltro || mov.nomeProduto.toLowerCase().includes(textoFiltro);
+            return atendeTipo && atendeTexto;
+        });
+        
+        movimentacoesFiltradas.sort((a, b) => new Date(b.data) - new Date(a.data));
+        
+        movimentacoesFiltradas.forEach(mov => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${formatarData(mov.data)}</td>
+                <td class="${mov.registro === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
+                    ${mov.registro === 'entrada' ? 'Entrada' : 'Saída'}
+                </td>
+                <td>${mov.codigo}</td>
+                <td>${mov.nomeProduto}</td>
+                <td>${mov.quantidade}</td>
+                <td>${mov.empresa}</td>
+            `;
+            listaMovimentacoes.appendChild(tr);
+        });
+    }
+
     function toggleContent() {
         const selectedValue = document.querySelector('input[name="registro"]:checked').value;
         movimentacaoForm.style.display = 'none';
         estoqueContent.style.display = 'none';
         cadastroItemContent.style.display = 'none';
 
-        if (selectedValue === 'entrada' || selectedValue === 'saida') {
-            movimentacaoForm.style.display = 'block';
-            carregarProdutosNoSelect();
-        } else if (selectedValue === 'estoque') {
-            estoqueContent.style.display = 'block';
-            // Resetar filtro quando mudar para estoque
-            tipoFiltroEstoque.value = '';
-            campoFiltroEstoque.value = '';
-            campoFiltroEstoque.disabled = true;
-            atualizarEstoque();
-        } else if (selectedValue === 'cadastro') {
-            cadastroItemContent.style.display = 'block';
-            // Resetar campos ao mostrar a tela de cadastro
-            tipoItemCadastro.value = '';
-            epiFields.style.display = 'none';
-            materialFields.style.display = 'none';
-            // Gerar novo código automaticamente
-            gerarNovoCodigo();
+        switch(selectedValue) {
+            case 'entrada':
+                pageTitle.textContent = 'Tela de Movimentações - Entrada';
+                movimentacaoForm.style.display = 'block';
+                carregarProdutosNoSelect();
+                break;
+            case 'saida':
+                pageTitle.textContent = 'Tela de Movimentações - Saída';
+                movimentacaoForm.style.display = 'block';
+                carregarProdutosNoSelect();
+                break;
+            case 'estoque':
+                pageTitle.textContent = 'Tela de Movimentações - Estoque';
+                estoqueContent.style.display = 'block';
+                tipoFiltroEstoque.value = '';
+                campoFiltroEstoque.value = '';
+                campoFiltroEstoque.disabled = true;
+                atualizarEstoque();
+                break;
+            case 'cadastro':
+                pageTitle.textContent = 'Tela de Movimentações - Cadastro de Itens';
+                cadastroItemContent.style.display = 'block';
+                tipoItemCadastro.value = '';
+                epiFields.style.display = 'none';
+                materialFields.style.display = 'none';
+                gerarNovoCodigo();
+                break;
         }
         
         carregarItensParaExclusao();
     }
 
-    // Função para gerar novo código automaticamente
     function gerarNovoCodigo() {
         const itens = JSON.parse(localStorage.getItem('itens')) || [];
         let ultimoCodigo = 0;
         
-        // Encontrar o maior código numérico existente
         itens.forEach(item => {
             const match = item.codigo.match(/\d+/);
             if (match) {
@@ -229,17 +472,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Gerar novo código com 3 dígitos
         const novoCodigo = (ultimoCodigo + 1).toString().padStart(3, '0');
         codigoCadastroInput.value = novoCodigo;
     }
 
-    // Eventos dos botões de rádio
     radioButtons.forEach(radio => {
         radio.addEventListener('change', toggleContent);
     });
 
-    // Carregar produtos no select de movimentação
     function carregarProdutosNoSelect() {
         selectProduto.innerHTML = '<option value="">Selecione um produto</option>';
         const itens = JSON.parse(localStorage.getItem('itens')) || [];
@@ -251,7 +491,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Carregar itens no select de exclusão
     function carregarItensParaExclusao() {
         itemParaExcluirSelect.innerHTML = '<option value="">Selecione um item</option>';
         const itens = JSON.parse(localStorage.getItem('itens')) || [];
@@ -263,7 +502,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Preencher campos ao selecionar um produto
     selectProduto.addEventListener('change', function () {
         const nomeProduto = selectProduto.value;
         const itens = JSON.parse(localStorage.getItem('itens')) || [];
@@ -274,17 +512,6 @@ document.addEventListener('DOMContentLoaded', function() {
             tipoItemInput.value = itemSelecionado.tipoItem;
             codigoInput.value = itemSelecionado.codigo;
             
-            // Preencher empresa se existir
-            if (itemSelecionado.empresa) {
-                empresaInput.innerHTML = `<option value="${itemSelecionado.empresa}">${itemSelecionado.empresa}</option>`;
-            } else {
-                empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>' +
-                                         '<option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>' +
-                                         '<option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>' +
-                                         '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
-            }
-            
-            // Preencher detalhes conforme o tipo de item
             if (itemSelecionado.tipoItem === 'EPI') {
                 detalhesItemInput.value = `CA: ${itemSelecionado.ca}, Tamanho: ${itemSelecionado.tamanho}`;
             } else if (itemSelecionado.tipoItem === 'Material') {
@@ -302,7 +529,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Validar data
     function validarData(data) {
         if (!data) {
             showCustomAlert('Por favor, selecione uma data!');
@@ -321,7 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    // Salvar movimentação ou cadastro de item
     saveButton.addEventListener('click', function (event) {
         event.preventDefault();
         const selectedValue = document.querySelector('input[name="registro"]:checked').value;
@@ -351,7 +576,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Obter o item selecionado
             const itens = JSON.parse(localStorage.getItem('itens')) || [];
             const itemIndex = itens.findIndex(item => item.nomeProduto === nomeProduto);
             
@@ -362,7 +586,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const item = itens[itemIndex];
             
-            // Verificar se é uma entrada e se ultrapassará o estoque máximo
             if (selectedValue === 'entrada') {
                 const novoEstoque = item.estoqueAtual + quantidade;
                 
@@ -376,7 +599,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Verificar se é uma saída e se há estoque suficiente
             if (selectedValue === 'saida') {
                 if (item.estoqueAtual < quantidade) {
                     limparCamposMovimentacao();
@@ -396,30 +618,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 codigo: codigoInput.value
             };
 
-            // Atualizar estoque e empresa
             if (selectedValue === 'entrada') {
                 itens[itemIndex].estoqueAtual += quantidade;
             } else if (selectedValue === 'saida') {
                 itens[itemIndex].estoqueAtual -= quantidade;
             }
             
-            // Atualizar a empresa do item
             itens[itemIndex].empresa = empresa;
             
             localStorage.setItem('itens', JSON.stringify(itens));
 
-            // Salvar movimentação
             let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
             movimentacoes.push(movimentacao);
             localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
 
-            // Atualizar listas
             atualizarListaMovimentacoes();
             carregarProdutosNoSelect();
             carregarItensParaExclusao();
             atualizarEstoque();
 
-            // Limpar formulário
             limparCamposMovimentacao();
         } else if (selectedValue === 'cadastro') {
             const codigo = codigoCadastroInput.value;
@@ -431,13 +648,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const estoqueMaximo = parseInt(document.getElementById('estoqueMaximo').value);
             const estoqueMinimo = parseInt(document.getElementById('estoqueMinimo').value);
 
-            // Validações básicas
             if (!nomeProdutoCadastro || !tipoItem) {
                 showCustomAlert('Por favor, preencha todos os campos obrigatórios!');
                 return;
             }
 
-            // Objeto base do item
             const item = {
                 codigo: codigo,
                 nomeProduto: nomeProdutoCadastro,
@@ -447,10 +662,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 estoqueSeguranca: estoqueSeguranca,
                 estoqueMaximo: estoqueMaximo,
                 estoqueMinimo: estoqueMinimo,
-                empresa: '' // Inicializa sem empresa
+                empresa: ''
             };
 
-            // Adiciona campos específicos conforme o tipo
             if (tipoItem === 'EPI') {
                 item.ca = document.getElementById('caEpi').value;
                 item.tamanho = document.getElementById('tamanhoEpi').value;
@@ -468,7 +682,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // Validação do formato das dimensões
                 const dimensoesPattern = /^\d+,\d+x\d+,\d+$/;
                 if (!dimensoesPattern.test(item.dimensoes)) {
                     showCustomAlert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
@@ -476,10 +689,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Salvar item no localStorage
             let itens = JSON.parse(localStorage.getItem('itens')) || [];
             
-            // Verificar se nome já existe (o código é gerado automaticamente)
             const nomeExistente = itens.find(item => item.nomeProduto === nomeProdutoCadastro);
             if (nomeExistente) {
                 showCustomAlert('Este nome de produto já está cadastrado!');
@@ -489,12 +700,10 @@ document.addEventListener('DOMContentLoaded', function() {
             itens.push(item);
             localStorage.setItem('itens', JSON.stringify(itens));
 
-            // Limpar e atualizar
             formCadastroItem.reset();
             tipoItemCadastro.value = '';
             epiFields.style.display = 'none';
             materialFields.style.display = 'none';
-            // Gerar novo código para o próximo cadastro
             gerarNovoCodigo();
             carregarProdutosNoSelect();
             carregarItensParaExclusao();
@@ -502,7 +711,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Excluir item
     deleteItemButton.addEventListener('click', function() {
         const nomeProduto = itemParaExcluirSelect.value;
         
@@ -511,94 +719,104 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        if (confirm(`Tem certeza que deseja excluir o item "${nomeProduto}"? Esta ação não pode ser desfeita.`)) {
-            // Remover o item
-            let itens = JSON.parse(localStorage.getItem('itens')) || [];
-            itens = itens.filter(item => item.nomeProduto !== nomeProduto);
-            localStorage.setItem('itens', JSON.stringify(itens));
-            
-            // Remover movimentações
-            let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
-            movimentacoes = movimentacoes.filter(mov => mov.nomeProduto !== nomeProduto);
-            localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
-            
-            // Atualizar tudo
-            carregarItensParaExclusao();
-            carregarProdutosNoSelect();
+        showCustomConfirm(`Tem certeza que deseja excluir o item "${nomeProduto}"? Esta ação não pode ser desfeita.`, function(confirmed) {
+            if (confirmed) {
+                let itens = JSON.parse(localStorage.getItem('itens')) || [];
+                itens = itens.filter(item => item.nomeProduto !== nomeProduto);
+                localStorage.setItem('itens', JSON.stringify(itens));
+                
+                let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
+                movimentacoes = movimentacoes.filter(mov => mov.nomeProduto !== nomeProduto);
+                localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
+                
+                carregarItensParaExclusao();
+                carregarProdutosNoSelect();
+                atualizarEstoque();
+                atualizarListaMovimentacoes();
+                
+                showCustomAlert(`Item "${nomeProduto}" excluído com sucesso!`);
+            }
+        });
+    });
+
+    // Eventos para os filtros do histórico
+    filtroTipoMovimentacao.addEventListener('change', atualizarListaMovimentacoes);
+    filtroMovimentacao.addEventListener('input', atualizarListaMovimentacoes);
+    btnLimparFiltros.addEventListener('click', function() {
+        filtroTipoMovimentacao.value = '';
+        filtroMovimentacao.value = '';
+        atualizarListaMovimentacoes();
+    });
+
+    // Evento para o filtro de estoque
+    tipoFiltroEstoque.addEventListener('change', function() {
+        if (this.value && this.value !== 'critico') {
+            campoFiltroEstoque.disabled = false;
+            campoFiltroEstoque.placeholder = `Digite o ${this.value === 'codigo' ? 'código' : this.value === 'nome' ? 'nome' : 'tipo'}...`;
+            campoFiltroEstoque.focus();
+        } else {
+            campoFiltroEstoque.disabled = true;
+            campoFiltroEstoque.value = '';
             atualizarEstoque();
-            atualizarListaMovimentacoes();
-            
-            showCustomAlert(`Item "${nomeProduto}" excluído com sucesso!`);
         }
     });
 
-    // Atualizar lista de movimentações
-    function atualizarListaMovimentacoes() {
-        listaMovimentacoes.innerHTML = '';
-        const movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
-        movimentacoes.forEach((mov, index) => {
-            const li = document.createElement('li');
-            li.textContent = `${mov.registro.toUpperCase()} - Código: ${mov.codigo} | ${mov.nomeProduto} | Empresa: ${mov.empresa} | Quantidade: ${mov.quantidade} em ${mov.data}`;
-            listaMovimentacoes.appendChild(li);
-        });
-    }
+    // Evento para filtrar enquanto digita
+    campoFiltroEstoque.addEventListener('input', function() {
+        if (tipoFiltroEstoque.value) {
+            atualizarEstoque();
+        }
+    });
 
-    // Atualizar estoque com filtro
-    function atualizarEstoque() {
-        listaEstoque.innerHTML = '';
+    // Botão para gerar relatório
+    btnRelatorio.addEventListener('click', function() {
         const itens = JSON.parse(localStorage.getItem('itens')) || [];
+        const html = `
+            <h2>Relatório de Estoque - ${new Date().toLocaleDateString()}</h2>
+            <table border="1" cellpadding="5" style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Produto</th>
+                        <th>Tipo</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itens.map(item => `
+                        <tr>
+                            <td>${item.codigo}</td>
+                            <td>${item.nomeProduto}</td>
+                            <td>${item.tipoItem}</td>
+                            <td>${item.estoqueAtual}</td>
+                            <td>${item.estoqueAtual <= item.estoqueCritico ? 'CRÍTICO' : 
+                                 item.estoqueAtual <= item.estoqueMinimo ? 'BAIXO' : 'NORMAL'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
         
-        // Obter valores do filtro
-        const tipoFiltro = tipoFiltroEstoque.value;
-        const valorFiltro = campoFiltroEstoque.value.toLowerCase();
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+        win.print();
+    });
+
+    // Mostrar/ocultar campos de EPI ou Material conforme seleção
+    tipoItemCadastro.addEventListener('change', function() {
+        const tipoSelecionado = this.value;
         
-        // Filtrar itens se houver filtro aplicado
-        const itensFiltrados = itens.filter(item => {
-            if (!tipoFiltro || !valorFiltro) return true;
-            
-            if (tipoFiltro === 'codigo') {
-                return item.codigo.toLowerCase().includes(valorFiltro);
-            } else if (tipoFiltro === 'nome') {
-                return item.nomeProduto.toLowerCase().includes(valorFiltro);
-            }
-            return true;
-        });
+        epiFields.style.display = 'none';
+        materialFields.style.display = 'none';
         
-        itensFiltrados.forEach(item => {
-            const li = document.createElement('li');
-            
-            // Adiciona classe baseada no tipo de item
-            li.setAttribute('data-tipo', item.tipoItem);
-            
-            if (item.estoqueAtual <= item.estoqueCritico) {
-                li.classList.add('estoque-critico');
-            }
-            
-            let detalhes = '';
-            if (item.tipoItem === 'EPI') {
-                detalhes = `CA: ${item.ca}, Tamanho: ${item.tamanho}`;
-            } else if (item.tipoItem === 'Material') {
-                detalhes = `Tipo: ${item.tipoMaterial}, Dimensões: ${item.dimensoes}`;
-            }
-            
-            // Formatar a exibição do estoque
-            let empresaDisplay = item.empresa ? item.empresa : 'Empresa não informada';
-            li.innerHTML = `
-                <div>
-                    <strong>Código:</strong> ${item.codigo}<br>
-                    <strong>Produto:</strong> ${item.nomeProduto}<br>
-                    <strong>Estoque:</strong> ${item.estoqueAtual} unidades
-                    ${item.estoqueAtual <= item.estoqueCritico ? '(Crítico)' : ''}
-                </div>
-                <div>
-                    <strong>Detalhes:</strong> ${detalhes}<br>
-                    <strong>Empresa:</strong> ${empresaDisplay}<br>
-                    <strong>Limites:</strong> Crítico: ${item.estoqueCritico} | Mín: ${item.estoqueMinimo} | Máx: ${item.estoqueMaximo}
-                </div>
-            `;
-            listaEstoque.appendChild(li);
-        });
-    }
+        if (tipoSelecionado === 'EPI') {
+            epiFields.style.display = 'block';
+        } else if (tipoSelecionado === 'Material') {
+            materialFields.style.display = 'block';
+        }
+    });
 
     // Inicialização
     atualizarListaMovimentacoes();
