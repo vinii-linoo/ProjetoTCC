@@ -183,6 +183,37 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.style.animation = 'slideIn 0.3s ease-out';
         }, 300);
     }
+    
+    function showSucessAlert(message) {
+        const alert = document.getElementById('sucessAlert');
+        const alertMessage = document.getElementById('sucessAlertMessage');
+        const closeButton = document.querySelector('.sucess-alert-close');
+        
+        alertMessage.innerHTML = message;
+        alert.style.display = 'block';
+        
+        const timer = setTimeout(() => {
+            hideSucessAlert();
+        }, 5000);
+        
+        closeButton.onclick = function() {
+            clearTimeout(timer);
+            hideSucessAlert();
+        };
+        
+        document.querySelector('.sucess-alert-timer').style.animation = 'none';
+        void document.querySelector('.sucess-alert-timer').offsetWidth;
+        document.querySelector('.sucess-alert-timer').style.animation = 'timer 5s linear forwards';
+    }
+    
+    function hideSucessAlert() {
+        const alert = document.getElementById('sucessAlert');
+        alert.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => {
+            alert.style.display = 'none';
+            alert.style.animation = 'slideIn 0.3s ease-out';
+        }, 300);
+    }
 
     // Função para confirm personalizado
     function showCustomConfirm(message, callback) {
@@ -707,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
             gerarNovoCodigo();
             carregarProdutosNoSelect();
             carregarItensParaExclusao();
-            showCustomAlert('Item cadastrado com sucesso!');
+            showSucessAlert('Item cadastrado com sucesso!');
         }
     });
 
@@ -734,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 atualizarEstoque();
                 atualizarListaMovimentacoes();
                 
-                showCustomAlert(`Item "${nomeProduto}" excluído com sucesso!`);
+                showSucessAlert(`Item "${nomeProduto}" excluído com sucesso!`);
             }
         });
     });

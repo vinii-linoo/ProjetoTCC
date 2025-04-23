@@ -542,6 +542,55 @@ button:hover {
     animation: timer 5s linear forwards;
 }
 
+.sucess-alert {
+    position: fixed;
+    top: 150px;
+    right: 30px;
+    width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 1000;
+    display: none;
+    animation: slideIn 0.3s ease-out;
+}
+
+.sucess-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sucess-alert-title {
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+.sucess-alert-close {
+    color: #ff0000;
+    font-size: 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.sucess-alert-body {
+    padding: 15px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.sucess-alert-timer {
+    height: 4px;
+    background: #1f9e9b;
+    width: 100%;
+    animation: timer 5s linear forwards;
+}
+
 /* Confirmação personalizada */
 .custom-confirm-buttons {
     display: flex;
