@@ -1,3 +1,4 @@
+// Funções de login
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
@@ -5,51 +6,6 @@ function validateEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
-
-function showTempMessage(message, redirectUrl = null) {
-    // Cria elemento para a mensagem
-    const messageDiv = document.createElement('div');
-    messageDiv.textContent = message;
-    messageDiv.style.position = 'fixed';
-    messageDiv.style.top = '20px';
-    messageDiv.style.left = '50%';
-    messageDiv.style.transform = 'translateX(-50%)';
-    messageDiv.style.backgroundColor = '#1f9e9b';
-    messageDiv.style.color = 'white';
-    messageDiv.style.padding = '15px 25px';
-    messageDiv.style.borderRadius = '5px';
-    messageDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-    messageDiv.style.zIndex = '1000';
-    messageDiv.style.animation = 'fadeIn 0.3s ease-out';
-    
-    // Adiciona ao body
-    document.body.appendChild(messageDiv);
-    
-    // Remove após 2 segundos
-    setTimeout(() => {
-        messageDiv.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => {
-            document.body.removeChild(messageDiv);
-            if (redirectUrl) {
-                window.location.href = redirectUrl;
-            }
-        }, 300);
-    }, 1000);
-}
-
-// Adiciona os estilos de animação dinamicamente
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    @keyframes fadeOut {
-        from { opacity: 1; transform: translateX(-50%) translateY(0); }
-        to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-    }
-`;
-document.head.appendChild(style);
 
 if (loginForm) {
     loginForm.addEventListener('submit', function(event) {
@@ -60,9 +16,10 @@ if (loginForm) {
         const user = JSON.parse(localStorage.getItem(email));
 
         if (user && user.password === password) {
-            showTempMessage('Login bem-sucedido!', 'movimentacao.html');
+            alert('Login bem-sucedido!');
+            window.location.href = 'movimentacao.html';
         } else {
-            showTempMessage('E-mail ou senha incorretos.');
+            alert('E-mail ou senha incorretos.');
         }
     });
 }
@@ -76,34 +33,26 @@ if (registerForm) {
         const confirmPassword = document.getElementById('confirmPassword').value;
 
         if (!validateEmail(newEmail)) {
-            showTempMessage('Por favor, insira um e-mail válido.');
+            alert('Por favor, insira um e-mail válido.');
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            showTempMessage('As senhas não coincidem!');
+            alert('As senhas não coincidem!');
             return;
         }
 
         if (localStorage.getItem(newEmail)) {
-            showTempMessage('E-mail já cadastrado!');
+            alert('E-mail já cadastrado!');
         } else {
             localStorage.setItem(newEmail, JSON.stringify({
                 username: newUsername,
                 password: newPassword
             }));
-            showTempMessage('Registro bem-sucedido!', 'login.html');
+            alert('Registro bem-sucedido!');
+            window.location.href = 'login.html';
         }
     });
-}
-
-// Função auxiliar para alerta + redirecionamento
-async function showAlertAndRedirect(message, redirectUrl) {
-    showCustomAlert(message);
-    
-    // Aguarda 1.5 segundos antes de redirecionar
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    window.location.href = redirectUrl;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -182,58 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.style.display = 'none';
             alert.style.animation = 'slideIn 0.3s ease-out';
         }, 300);
-    }
-    
-    function showSucessAlert(message) {
-        const alert = document.getElementById('sucessAlert');
-        const alertMessage = document.getElementById('sucessAlertMessage');
-        const closeButton = document.querySelector('.sucess-alert-close');
-        
-        alertMessage.innerHTML = message;
-        alert.style.display = 'block';
-        
-        const timer = setTimeout(() => {
-            hideSucessAlert();
-        }, 5000);
-        
-        closeButton.onclick = function() {
-            clearTimeout(timer);
-            hideSucessAlert();
-        };
-        
-        document.querySelector('.sucess-alert-timer').style.animation = 'none';
-        void document.querySelector('.sucess-alert-timer').offsetWidth;
-        document.querySelector('.sucess-alert-timer').style.animation = 'timer 5s linear forwards';
-    }
-    
-    function hideSucessAlert() {
-        const alert = document.getElementById('sucessAlert');
-        alert.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => {
-            alert.style.display = 'none';
-            alert.style.animation = 'slideIn 0.3s ease-out';
-        }, 300);
-    }
-
-    // Função para confirm personalizado
-    function showCustomConfirm(message, callback) {
-        const confirmBox = document.getElementById('customConfirm');
-        const confirmMessage = document.getElementById('customConfirmMessage');
-        const confirmYes = document.getElementById('confirmYes');
-        const confirmNo = document.getElementById('confirmNo');
-
-        confirmMessage.textContent = message;
-        confirmBox.style.display = 'block';
-
-        confirmYes.onclick = function() {
-            confirmBox.style.display = 'none';
-            callback(true);
-        };
-
-        confirmNo.onclick = function() {
-            confirmBox.style.display = 'none';
-            callback(false);
-        };
     }
 
     function limparCamposMovimentacao() {
@@ -367,56 +264,37 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Busca o nome do produto para exibir no título
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        const item = itens.find(i => i.codigo === codigo);
-        const nomeProduto = item ? item.nomeProduto : '';
-        
-        // Atualiza o título da modal
-        document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
-        
-        // Preenche o corpo da tabela
-        const tbody = document.getElementById('historicoModalBody');
-        tbody.innerHTML = '';
+        let html = `<h3>Histórico de Movimentações - ${codigo}</h3>
+                    <table border="1" cellpadding="5" style="width:100%;border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Quantidade</th>
+                                <th>Empresa</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
         
         historico.forEach(mov => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${formatarData(mov.data)}</td>
-                <td class="${mov.registro === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
-                    ${mov.registro === 'entrada' ? 'Entrada' : 'Saída'}
-                </td>
-                <td>${mov.quantidade}</td>
-                <td>${mov.empresa}</td>
-            `;
-            tbody.appendChild(tr);
+            html += `<tr>
+                        <td>${formatarData(mov.data)}</td>
+                        <td>${mov.registro === 'entrada' ? 'Entrada' : 'Saída'}</td>
+                        <td>${mov.quantidade}</td>
+                        <td>${mov.empresa}</td>
+                    </tr>`;
         });
         
-        // Exibe a modal
-        const modal = document.getElementById('historicoModal');
-        modal.style.display = 'flex';
+        html += `</tbody></table>`;
         
-        // Fecha a modal ao clicar no X ou fora do conteúdo
-        document.querySelector('.modal-close').onclick = function() {
-            modal.style.display = 'none';
-        };
-        
-        modal.onclick = function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
     }
 
     function formatarData(dataString) {
         const data = new Date(dataString);
-        return data.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        return data.toLocaleDateString('pt-BR');
     }
 
     function atualizarListaMovimentacoes() {
@@ -542,6 +420,15 @@ document.addEventListener('DOMContentLoaded', function() {
             estoqueAtualInput.value = itemSelecionado.estoqueAtual;
             tipoItemInput.value = itemSelecionado.tipoItem;
             codigoInput.value = itemSelecionado.codigo;
+            
+            if (itemSelecionado.empresa) {
+                empresaInput.innerHTML = `<option value="${itemSelecionado.empresa}">${itemSelecionado.empresa}</option>`;
+            } else {
+                empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>' +
+                                         '<option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>' +
+                                         '<option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>' +
+                                         '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
+            }
             
             if (itemSelecionado.tipoItem === 'EPI') {
                 detalhesItemInput.value = `CA: ${itemSelecionado.ca}, Tamanho: ${itemSelecionado.tamanho}`;
@@ -738,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
             gerarNovoCodigo();
             carregarProdutosNoSelect();
             carregarItensParaExclusao();
-            showSucessAlert('Item cadastrado com sucesso!');
+            showCustomAlert('Item cadastrado com sucesso!');
         }
     });
 
@@ -750,24 +637,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        showCustomConfirm(`Tem certeza que deseja excluir o item "${nomeProduto}"? Esta ação não pode ser desfeita.`, function(confirmed) {
-            if (confirmed) {
-                let itens = JSON.parse(localStorage.getItem('itens')) || [];
-                itens = itens.filter(item => item.nomeProduto !== nomeProduto);
-                localStorage.setItem('itens', JSON.stringify(itens));
-                
-                let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
-                movimentacoes = movimentacoes.filter(mov => mov.nomeProduto !== nomeProduto);
-                localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
-                
-                carregarItensParaExclusao();
-                carregarProdutosNoSelect();
-                atualizarEstoque();
-                atualizarListaMovimentacoes();
-                
-                showSucessAlert(`Item "${nomeProduto}" excluído com sucesso!`);
-            }
-        });
+        if (confirm(`Tem certeza que deseja excluir o item "${nomeProduto}"? Esta ação não pode ser desfeita.`)) {
+            let itens = JSON.parse(localStorage.getItem('itens')) || [];
+            itens = itens.filter(item => item.nomeProduto !== nomeProduto);
+            localStorage.setItem('itens', JSON.stringify(itens));
+            
+            let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
+            movimentacoes = movimentacoes.filter(mov => mov.nomeProduto !== nomeProduto);
+            localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
+            
+            carregarItensParaExclusao();
+            carregarProdutosNoSelect();
+            atualizarEstoque();
+            atualizarListaMovimentacoes();
+            
+            showCustomAlert(`Item "${nomeProduto}" excluído com sucesso!`);
+        }
     });
 
     // Eventos para os filtros do histórico
