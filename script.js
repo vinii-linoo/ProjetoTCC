@@ -42,7 +42,7 @@ style.textContent = `
     }
     @keyframes fadeOut {
         from { opacity: 1; transform: translateX(-50%) translateY(0); }
-        to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        to { opacity: 0; transform: translateX(100%) translateY(0px); }
     }
 `;
 document.head.appendChild(style);
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function hideSucessAlert() {
         const alert = document.getElementById('sucessAlert');
-        alert.style.animation = 'fadeOut 0.3s ease-out';
+        alert.style.animation = 'fadeOut 1s ease-out';
         setTimeout(() => {
             alert.style.display = 'none';
             alert.style.animation = 'slideIn 0.3s ease-out';
