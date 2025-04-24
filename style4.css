@@ -327,6 +327,15 @@ button:hover {
     font-weight: 500;
 }
 
+.estoque-table tr.estoque-baixo {
+    background-color: #fff8e1;
+}
+
+.estoque-table tr.estoque-baixo td {
+    color: #ff8f00;
+    font-weight: 500;
+}
+
 .estoque-status {
     display: inline-block;
     padding: 4px 8px;
@@ -636,7 +645,6 @@ button:hover {
     z-index: 2000;
     justify-content: center;
     align-items: center;
-    animation: fadeIn 0.3s;
 }
 
 .modal-content {
@@ -647,7 +655,6 @@ button:hover {
     max-height: 80vh;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    animation: slideIn 0.3s;
 }
 
 .modal-header {
@@ -708,10 +715,6 @@ button:hover {
 }
 
 /* Animações */
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
 
 @keyframes timer {
     from { width: 100%; }

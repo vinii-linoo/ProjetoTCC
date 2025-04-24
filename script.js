@@ -7,7 +7,6 @@ function validateEmail(email) {
 }
 
 function showTempMessage(message, redirectUrl = null) {
-    // Cria elemento para a mensagem
     const messageDiv = document.createElement('div');
     messageDiv.textContent = message;
     messageDiv.style.position = 'fixed';
@@ -22,10 +21,8 @@ function showTempMessage(message, redirectUrl = null) {
     messageDiv.style.zIndex = '1000';
     messageDiv.style.animation = 'fadeIn 0.3s ease-out';
     
-    // Adiciona ao body
     document.body.appendChild(messageDiv);
     
-    // Remove após 2 segundos
     setTimeout(() => {
         messageDiv.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => {
@@ -37,7 +34,6 @@ function showTempMessage(message, redirectUrl = null) {
     }, 1000);
 }
 
-// Adiciona os estilos de animação dinamicamente
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeIn {
@@ -95,15 +91,6 @@ if (registerForm) {
             showTempMessage('Registro bem-sucedido!', 'login.html');
         }
     });
-}
-
-// Função auxiliar para alerta + redirecionamento
-async function showAlertAndRedirect(message, redirectUrl) {
-    showCustomAlert(message);
-    
-    // Aguarda 1.5 segundos antes de redirecionar
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    window.location.href = redirectUrl;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -272,6 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return item.tipoItem.toLowerCase().includes(valorFiltro);
             } else if (tipoFiltro === 'critico') {
                 return item.estoqueAtual <= item.estoqueCritico;
+            } else if (tipoFiltro === 'baixo') {
+                return item.estoqueAtual > item.estoqueCritico && item.estoqueAtual <= item.estoqueMinimo;
             }
             return true;
         });
@@ -305,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const tr = document.createElement('tr');
             if (status === 'Crítico') tr.classList.add('estoque-critico');
+            else if (status === 'Baixo') tr.classList.add('estoque-baixo');
             
             tr.innerHTML = `
                 <td>${item.codigo}</td>
@@ -781,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Evento para o filtro de estoque
     tipoFiltroEstoque.addEventListener('change', function() {
-        if (this.value && this.value !== 'critico') {
+        if (this.value && this.value !== 'critico' && this.value !== 'baixo') {
             campoFiltroEstoque.disabled = false;
             campoFiltroEstoque.placeholder = `Digite o ${this.value === 'codigo' ? 'código' : this.value === 'nome' ? 'nome' : 'tipo'}...`;
             campoFiltroEstoque.focus();
@@ -799,40 +789,86 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Botão para gerar relatório
+    // Botão para gerar relatório - VERSÃO ATUALIZADA
     btnRelatorio.addEventListener('click', function() {
         const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        const html = `
-            <h2>Relatório de Estoque - ${new Date().toLocaleDateString()}</h2>
-            <table border="1" cellpadding="5" style="width:100%;border-collapse:collapse;">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Produto</th>
-                        <th>Tipo</th>
-                        <th>Estoque</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itens.map(item => `
-                        <tr>
-                            <td>${item.codigo}</td>
-                            <td>${item.nomeProduto}</td>
-                            <td>${item.tipoItem}</td>
-                            <td>${item.estoqueAtual}</td>
-                            <td>${item.estoqueAtual <= item.estoqueCritico ? 'CRÍTICO' : 
-                                 item.estoqueAtual <= item.estoqueMinimo ? 'BAIXO' : 'NORMAL'}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
         
-        const win = window.open('', '_blank');
-        win.document.write(html);
-        win.document.close();
-        win.print();
+        // Criar um iframe oculto para gerar o relatório
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        const doc = iframe.contentWindow.document;
+        
+        // Estilos para impressão
+        doc.open();
+        doc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Relatório de Estoque</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    h2 { color:rgb(0, 0, 0); text-align: center; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th { background-color:rgb(0, 0, 0); color: white; padding: 10px; text-align: center; }
+                    td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+                    tr:nth-child(even) { background-color:rgb(0, 0, 0); }
+                    .critico { color:rgb(0, 0, 0); }
+                    .baixo { color:rgb(0, 0, 0); }
+                    
+                    @media print {
+                        body { margin: 0; padding: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Relatório de Estoque - ${new Date().toLocaleDateString('pt-BR')}</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Produto</th>
+                            <th>Tipo</th>
+                            <th>Estoque Atual</th>
+                            <th>Mínimo</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itens.map(item => {
+                            const status = item.estoqueAtual <= item.estoqueCritico ? 'CRÍTICO' : 
+                                           item.estoqueAtual <= item.estoqueMinimo ? 'BAIXO' : 'NORMAL';
+                            const classeStatus = status === 'CRÍTICO' ? 'critico' : 
+                                               status === 'BAIXO' ? 'baixo' : '';
+                            return `
+                                <tr>
+                                    <td>${item.codigo}</td>
+                                    <td>${item.nomeProduto}</td>
+                                    <td>${item.tipoItem}</td>
+                                    <td>${item.estoqueAtual}</td>
+                                    <td>${item.estoqueMinimo}</td>
+                                    <td class="${classeStatus}">${status}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <div class="no-print" style="margin-top: 20px; text-align: center;">
+                    <button onclick="window.print()">Imprimir</button>
+                    <button onclick="window.close()">Fechar</button>
+                </div>
+            </body>
+            </html>
+        `);
+        doc.close();
+        
+        // Focar no iframe e chamar a impressão
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }, 300);
     });
 
     // Mostrar/ocultar campos de EPI ou Material conforme seleção
