@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Controle de Estoque</title>
-    <link rel="stylesheet" href="./style4.css">
+    <link rel="stylesheet" href="style4.css">
     <link rel="icon" type="image/png" href="img/logo.png">
 </head>
 <body>
@@ -14,6 +14,7 @@
             <h1 class="page-title" id="pageTitle">Tela de Movimentações</h1>
         </nav>
     </header>
+    
     <div class="main-container">
         <div class="container">
             <div class="content">
@@ -34,12 +35,14 @@
                         <input type="radio" name="registro" value="cadastro" class="radio">
                         <span>Cadastro de Item</span>
                     </label>
+                    
                     <div class="buttons">
                         <button class="save" id="saveButton">Salvar</button>
                         <a href="index.html">
                             <button class="exit">Sair</button>
                         </a>
                     </div>
+                    
                     <div class="delete-section">
                         <div class="form-group">
                             <label>Selecione o Item para Excluir:</label>
@@ -50,6 +53,7 @@
                         <button class="delete" id="deleteItemButton">Excluir Item Selecionado</button>
                     </div>
                 </div>
+                
                 <div class="main" id="mainContent">
                     <!-- Tela de Entrada/Saída -->
                     <div id="movimentacaoForm">
@@ -228,6 +232,7 @@
                     </div>
                 </div>
             </div>
+            
             <!-- Lista de Movimentações Salvas -->
             <div class="movimentacoes-salvas">
                 <div class="movimentacoes-header">
@@ -263,6 +268,7 @@
         </div>
     </div>
 
+    <!-- Alertas Personalizados -->
     <div id="customAlert" class="custom-alert">
         <div class="custom-alert-timer"></div>
         <div class="custom-alert-header">
@@ -270,6 +276,54 @@
             <div class="custom-alert-close">&times;</div>
         </div>
         <div class="custom-alert-body" id="customAlertMessage"></div>
+    </div>
+  
+    <div id="sucessAlert" class="sucess-alert">
+        <div class="sucess-alert-timer"></div>
+        <div class="sucess-alert-header">
+            <div class="sucess-alert-title">Sucesso!</div>
+            <div class="sucess-alert-close">&times;</div>
+        </div>
+        <div class="sucess-alert-body" id="sucessAlertMessage"></div>
+    </div>
+
+    <!-- Confirmação Personalizada -->
+    <div id="customConfirm" class="custom-alert" style="display: none;">
+        <div class="custom-alert-header">
+            <div class="custom-alert-title">Confirmação</div>
+        </div>
+        <div class="custom-alert-body" id="customConfirmMessage"></div>
+        <div class="custom-confirm-buttons">
+            <button id="confirmYes" class="confirm-button confirm-yes">Sim</button>
+            <button id="confirmNo" class="confirm-button confirm-no">Não</button>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico -->
+    <div id="historicoModal" class="custom-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="historicoModalTitle">Histórico de Movimentações</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-table-container">
+                    <table class="modal-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Quantidade</th>
+                                <th>Empresa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicoModalBody">
+                            <!-- Conteúdo será preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
