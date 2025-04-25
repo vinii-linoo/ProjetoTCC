@@ -1,11 +1,4 @@
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-
-function validateEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
+// Funções utilitárias
 function showTempMessage(message, redirectUrl = null) {
     const messageDiv = document.createElement('div');
     messageDiv.textContent = message;
@@ -34,6 +27,106 @@ function showTempMessage(message, redirectUrl = null) {
     }, 1000);
 }
 
+function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Funções para mostrar alertas personalizados
+function showCustomAlert(message) {
+    const alert = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('customAlertMessage');
+    const closeButton = document.querySelector('.custom-alert-close');
+    
+    alertMessage.innerHTML = message;
+    alert.style.display = 'block';
+    
+    const timer = setTimeout(() => {
+        hideCustomAlert();
+    }, 5000);
+    
+    closeButton.onclick = function() {
+        clearTimeout(timer);
+        hideCustomAlert();
+    };
+    
+    document.querySelector('.custom-alert-timer').style.animation = 'none';
+    void document.querySelector('.custom-alert-timer').offsetWidth;
+    document.querySelector('.custom-alert-timer').style.animation = 'timer 5s linear forwards';
+}
+
+function hideCustomAlert() {
+    const alert = document.getElementById('customAlert');
+    alert.style.animation = 'fadeOut 0.3s ease-out';
+    setTimeout(() => {
+        alert.style.display = 'none';
+        alert.style.animation = 'slideIn 0.3s ease-out';
+    }, 300);
+}
+
+function showSucessAlert(message) {
+    const alert = document.getElementById('sucessAlert');
+    const alertMessage = document.getElementById('sucessAlertMessage');
+    const closeButton = document.querySelector('.sucess-alert-close');
+    
+    alertMessage.innerHTML = message;
+    alert.style.display = 'block';
+    
+    const timer = setTimeout(() => {
+        hideSucessAlert();
+    }, 5000);
+    
+    closeButton.onclick = function() {
+        clearTimeout(timer);
+        hideSucessAlert();
+    };
+    
+    document.querySelector('.sucess-alert-timer').style.animation = 'none';
+    void document.querySelector('.sucess-alert-timer').offsetWidth;
+    document.querySelector('.sucess-alert-timer').style.animation = 'timer 5s linear forwards';
+}
+
+function hideSucessAlert() {
+    const alert = document.getElementById('sucessAlert');
+    alert.style.animation = 'fadeOut 1s ease-out';
+    setTimeout(() => {
+        alert.style.display = 'none';
+        alert.style.animation = 'slideIn 0.3s ease-out';
+    }, 300);
+}
+
+function showCustomConfirm(message, callback) {
+    const confirmBox = document.getElementById('customConfirm');
+    const confirmMessage = document.getElementById('customConfirmMessage');
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo = document.getElementById('confirmNo');
+
+    confirmMessage.textContent = message;
+    confirmBox.style.display = 'block';
+
+    confirmYes.onclick = function() {
+        confirmBox.style.display = 'none';
+        callback(true);
+    };
+
+    confirmNo.onclick = function() {
+        confirmBox.style.display = 'none';
+        callback(false);
+    };
+}
+
+// Adiciona estilos para animações
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeIn {
@@ -44,8 +137,16 @@ style.textContent = `
         from { opacity: 1; transform: translateX(-50%) translateY(0); }
         to { opacity: 0; transform: translateX(100%) translateY(0px); }
     }
+    @keyframes timer {
+        from { width: 100%; }
+        to { width: 0%; }
+    }
 `;
 document.head.appendChild(style);
+
+// Login e Registro
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
 
 if (loginForm) {
     loginForm.addEventListener('submit', function(event) {
@@ -53,13 +154,25 @@ if (loginForm) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        const user = JSON.parse(localStorage.getItem(email));
-
-        if (user && user.password === password) {
-            showTempMessage('Login bem-sucedido!', 'movimentacao.html');
-        } else {
-            showTempMessage('E-mail ou senha incorretos.');
-        }
+        fetch('php/login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showTempMessage('Login bem-sucedido!', data.redirect);
+            } else {
+                showTempMessage(data.message || 'E-mail ou senha incorretos.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showTempMessage('Erro ao fazer login. Tente novamente.');
+        });
     });
 }
 
@@ -81,19 +194,35 @@ if (registerForm) {
             return;
         }
 
-        if (localStorage.getItem(newEmail)) {
-            showTempMessage('E-mail já cadastrado!');
+        fetch('php/register.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `newUsername=${encodeURIComponent(newUsername)}&newEmail=${encodeURIComponent(newEmail)}&newPassword=${encodeURIComponent(newPassword)}&confirmPassword=${encodeURIComponent(confirmPassword)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showTempMessage(data.message, data.redirect);
+            registerForm.reset();
+            document.querySelector('input[type="password"]').value = '';
         } else {
-            localStorage.setItem(newEmail, JSON.stringify({
-                username: newUsername,
-                password: newPassword
-            }));
-            showTempMessage('Registro bem-sucedido!', 'login.html');
+            showTempMessage(data.message || 'Erro ao registrar usuário.');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showTempMessage('Erro ao registrar. Tente novamente.');
     });
+});
 }
 
+// Sistema de Controle de Estoque
 document.addEventListener('DOMContentLoaded', function() {
+    // Verifica se estamos na página de movimentação
+    if (!document.getElementById('pageTitle')) return;
+
     // Variáveis do sistema principal
     const formMovimentacao = document.getElementById('cadastroMovimentacaoForm');
     const formCadastroItem = document.getElementById('cadastroItemForm');
@@ -139,90 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
     dataInput.max = '2026-01-01';
     dataInput.valueAsDate = new Date();
 
-    // Função para mostrar alerta personalizado
-    function showCustomAlert(message) {
-        const alert = document.getElementById('customAlert');
-        const alertMessage = document.getElementById('customAlertMessage');
-        const closeButton = document.querySelector('.custom-alert-close');
-        
-        alertMessage.innerHTML = message;
-        alert.style.display = 'block';
-        
-        const timer = setTimeout(() => {
-            hideCustomAlert();
-        }, 5000);
-        
-        closeButton.onclick = function() {
-            clearTimeout(timer);
-            hideCustomAlert();
-        };
-        
-        document.querySelector('.custom-alert-timer').style.animation = 'none';
-        void document.querySelector('.custom-alert-timer').offsetWidth;
-        document.querySelector('.custom-alert-timer').style.animation = 'timer 5s linear forwards';
-    }
-
-    function hideCustomAlert() {
-        const alert = document.getElementById('customAlert');
-        alert.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => {
-            alert.style.display = 'none';
-            alert.style.animation = 'slideIn 0.3s ease-out';
-        }, 300);
-    }
-    
-    function showSucessAlert(message) {
-        const alert = document.getElementById('sucessAlert');
-        const alertMessage = document.getElementById('sucessAlertMessage');
-        const closeButton = document.querySelector('.sucess-alert-close');
-        
-        alertMessage.innerHTML = message;
-        alert.style.display = 'block';
-        
-        const timer = setTimeout(() => {
-            hideSucessAlert();
-        }, 5000);
-        
-        closeButton.onclick = function() {
-            clearTimeout(timer);
-            hideSucessAlert();
-        };
-        
-        document.querySelector('.sucess-alert-timer').style.animation = 'none';
-        void document.querySelector('.sucess-alert-timer').offsetWidth;
-        document.querySelector('.sucess-alert-timer').style.animation = 'timer 5s linear forwards';
-    }
-    
-    function hideSucessAlert() {
-        const alert = document.getElementById('sucessAlert');
-        alert.style.animation = 'fadeOut 1s ease-out';
-        setTimeout(() => {
-            alert.style.display = 'none';
-            alert.style.animation = 'slideIn 0.3s ease-out';
-        }, 300);
-    }
-
-    // Função para confirm personalizado
-    function showCustomConfirm(message, callback) {
-        const confirmBox = document.getElementById('customConfirm');
-        const confirmMessage = document.getElementById('customConfirmMessage');
-        const confirmYes = document.getElementById('confirmYes');
-        const confirmNo = document.getElementById('confirmNo');
-
-        confirmMessage.textContent = message;
-        confirmBox.style.display = 'block';
-
-        confirmYes.onclick = function() {
-            confirmBox.style.display = 'none';
-            callback(true);
-        };
-
-        confirmNo.onclick = function() {
-            confirmBox.style.display = 'none';
-            callback(false);
-        };
-    }
-
+    // Função para limpar campos de movimentação
     function limparCamposMovimentacao() {
         document.getElementById('quantidade').value = '';
         selectProduto.value = '';
@@ -230,217 +276,342 @@ document.addEventListener('DOMContentLoaded', function() {
         tipoItemInput.value = '';
         detalhesItemInput.value = '';
         codigoInput.value = '';
-        empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>' +
-                                '<option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>' +
-                                '<option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>' +
-                                '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
+        carregarEmpresas();
     }
 
+    // Função para carregar empresas
+    function carregarEmpresas() {
+        fetch('php/empresas.php')
+            .then(response => response.json())
+            .then(empresas => {
+                empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>';
+                empresas.forEach(empresa => {
+                    const option = document.createElement('option');
+                    option.value = empresa.cnpj;
+                    option.textContent = `${empresa.nome} - CNPJ: ${empresa.cnpj}`;
+                    empresaInput.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar empresas');
+            });
+    }
+
+    // Função para carregar produtos no select
+    function carregarProdutosNoSelect() {
+        selectProduto.innerHTML = '<option value="">Selecione um produto</option>';
+        
+        fetch('php/itens.php')
+            .then(response => response.json())
+            .then(itens => {
+                itens.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.codigo;
+                    option.textContent = `${item.codigo} - ${item.nome_produto}`;
+                    selectProduto.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar produtos');
+            });
+    }
+
+    // Função para carregar itens para exclusão
+    function carregarItensParaExclusao() {
+        itemParaExcluirSelect.innerHTML = '<option value="">Selecione um item</option>';
+        
+        fetch('php/itens.php')
+            .then(response => response.json())
+            .then(itens => {
+                itens.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.codigo;
+                    option.textContent = `${item.codigo} - ${item.nome_produto}`;
+                    itemParaExcluirSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar itens para exclusão');
+            });
+    }
+
+    // Função para atualizar o estoque na tabela
     function atualizarEstoque() {
         const corpoTabela = document.getElementById('corpoTabelaEstoque');
         corpoTabela.innerHTML = '';
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
         
+        let url = 'php/itens.php';
         const tipoFiltro = tipoFiltroEstoque.value;
         const valorFiltro = campoFiltroEstoque.value.toLowerCase();
         
-        let totalItens = 0;
-        let totalCritico = 0;
-        let totalBaixo = 0;
-        
-        const itensFiltrados = itens.filter(item => {
-            if (!tipoFiltro) return true;
-            
-            if (tipoFiltro === 'codigo') {
-                return item.codigo.toLowerCase().includes(valorFiltro);
-            } else if (tipoFiltro === 'nome') {
-                return item.nomeProduto.toLowerCase().includes(valorFiltro);
-            } else if (tipoFiltro === 'tipo') {
-                return item.tipoItem.toLowerCase().includes(valorFiltro);
-            } else if (tipoFiltro === 'critico') {
-                return item.estoqueAtual <= item.estoqueCritico;
-            } else if (tipoFiltro === 'baixo') {
-                return item.estoqueAtual > item.estoqueCritico && item.estoqueAtual <= item.estoqueMinimo;
+        if (tipoFiltro && valorFiltro) {
+            if (tipoFiltro === 'codigo' || tipoFiltro === 'nome' || tipoFiltro === 'tipo') {
+                url += `?${tipoFiltro}=${encodeURIComponent(valorFiltro)}`;
             }
-            return true;
-        });
+        }
         
-        document.getElementById('semResultados').style.display = 
-            itensFiltrados.length === 0 ? 'block' : 'none';
-        
-        itensFiltrados.forEach(item => {
-            totalItens++;
-            
-            let status, statusClass;
-            if (item.estoqueAtual <= item.estoqueCritico) {
-                status = 'Crítico';
-                statusClass = 'status-critico';
-                totalCritico++;
-            } else if (item.estoqueAtual <= item.estoqueMinimo) {
-                status = 'Baixo';
-                statusClass = 'status-baixo';
-                totalBaixo++;
-            } else {
-                status = 'Normal';
-                statusClass = 'status-normal';
-            }
-            
-            let detalhes = '';
-            if (item.tipoItem === 'EPI') {
-                detalhes = `CA: ${item.ca}, Tamanho: ${item.tamanho}`;
-            } else if (item.tipoItem === 'Material') {
-                detalhes = `Tipo: ${item.tipoMaterial}, Dimensões: ${item.dimensoes}`;
-            }
-            
-            const tr = document.createElement('tr');
-            if (status === 'Crítico') tr.classList.add('estoque-critico');
-            else if (status === 'Baixo') tr.classList.add('estoque-baixo');
-            
-            tr.innerHTML = `
-                <td>${item.codigo}</td>
-                <td>${item.nomeProduto}</td>
-                <td>${item.tipoItem}</td>
-                <td>${item.estoqueAtual}</td>
-                <td><span class="estoque-status ${statusClass}">${status}</span></td>
-                <td>${detalhes}</td>
-                <td>${item.empresa || 'Não informada'}</td>
-                <td>
-                    <button class="action-button" title="Editar" onclick="editarItem('${item.codigo}')">✏️</button>
-                    <button class="action-button" title="Histórico" onclick="verHistorico('${item.codigo}')">📊</button>
-                </td>
-            `;
-            
-            corpoTabela.appendChild(tr);
-        });
-        
-        document.getElementById('totalItens').textContent = totalItens;
-        document.getElementById('totalCritico').textContent = totalCritico;
-        document.getElementById('totalBaixo').textContent = totalBaixo;
+        fetch(url)
+            .then(response => response.json())
+            .then(itens => {
+                let totalItens = 0;
+                let totalCritico = 0;
+                let totalBaixo = 0;
+                
+                // Aplicar filtros adicionais no cliente (para critico/baixo)
+                const itensFiltrados = itens.filter(item => {
+                    if (tipoFiltro === 'critico') {
+                        return item.estoque_atual <= item.estoque_critico;
+                    } else if (tipoFiltro === 'baixo') {
+                        return item.estoque_atual > item.estoque_critico && item.estoque_atual <= item.estoque_minimo;
+                    }
+                    return true;
+                });
+                
+                document.getElementById('semResultados').style.display = 
+                    itensFiltrados.length === 0 ? 'block' : 'none';
+                
+                itensFiltrados.forEach(item => {
+                    totalItens++;
+                    
+                    let status, statusClass;
+                    if (item.estoque_atual <= item.estoque_critico) {
+                        status = 'Crítico';
+                        statusClass = 'status-critico';
+                        totalCritico++;
+                    } else if (item.estoque_atual <= item.estoque_minimo) {
+                        status = 'Baixo';
+                        statusClass = 'status-baixo';
+                        totalBaixo++;
+                    } else {
+                        status = 'Normal';
+                        statusClass = 'status-normal';
+                    }
+                    
+                    let detalhes = '';
+                    if (item.tipo_item === 'EPI') {
+                        detalhes = `CA: ${item.ca_epi}, Tamanho: ${item.tamanho_epi}`;
+                    } else if (item.tipo_item === 'Material') {
+                        detalhes = `Tipo: ${item.tipo_material}, Dimensões: ${item.dimensoes_material}`;
+                    }
+                    
+                    const tr = document.createElement('tr');
+                    if (status === 'Crítico') tr.classList.add('estoque-critico');
+                    else if (status === 'Baixo') tr.classList.add('estoque-baixo');
+                    
+                    tr.innerHTML = `
+                        <td>${item.codigo}</td>
+                        <td>${item.nome_produto}</td>
+                        <td>${item.tipo_item}</td>
+                        <td>${item.estoque_atual}</td>
+                        <td><span class="estoque-status ${statusClass}">${status}</span></td>
+                        <td>${detalhes}</td>
+                        <td>${item.empresa_nome || 'Não informada'}</td>
+                        <td>
+                            <button class="action-button" title="Editar" onclick="editarItem('${item.codigo}')">✏️</button>
+                            <button class="action-button" title="Histórico" onclick="verHistorico('${item.codigo}')">📊</button>
+                        </td>
+                    `;
+                    
+                    corpoTabela.appendChild(tr);
+                });
+                
+                document.getElementById('totalItens').textContent = totalItens;
+                document.getElementById('totalCritico').textContent = totalCritico;
+                document.getElementById('totalBaixo').textContent = totalBaixo;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar estoque');
+            });
     }
 
+    // Função para editar item (global para ser acessível nos eventos)
     window.editarItem = function(codigo) {
         document.querySelector('input[value="cadastro"]').click();
         
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        const item = itens.find(i => i.codigo === codigo);
-        
-        if (item) {
-            document.getElementById('codigoCadastro').value = item.codigo;
-            document.getElementById('nomeProdutoCadastro').value = item.nomeProduto;
-            document.getElementById('tipoItemCadastro').value = item.tipoItem;
-            document.getElementById('estoqueAtualCadastro').value = item.estoqueAtual;
-            document.getElementById('estoqueCritico').value = item.estoqueCritico;
-            document.getElementById('estoqueSeguranca').value = item.estoqueSeguranca;
-            document.getElementById('estoqueMaximo').value = item.estoqueMaximo;
-            document.getElementById('estoqueMinimo').value = item.estoqueMinimo;
-            
-            if (item.tipoItem === 'EPI') {
-                document.getElementById('caEpi').value = item.ca;
-                document.getElementById('tamanhoEpi').value = item.tamanho;
-                document.getElementById('epiFields').style.display = 'block';
-            } else if (item.tipoItem === 'Material') {
-                document.getElementById('tipoMaterial').value = item.tipoMaterial;
-                document.getElementById('dimensoesMaterial').value = item.dimensoes;
-                document.getElementById('materialFields').style.display = 'block';
-            }
-            
-            showCustomAlert(`Editando item ${item.codigo} - ${item.nomeProduto}`);
-        }
+        fetch(`php/itens.php?codigo=${codigo}`)
+            .then(response => response.json())
+            .then(item => {
+                if (item) {
+                    document.getElementById('codigoCadastro').value = item.codigo;
+                    document.getElementById('nomeProdutoCadastro').value = item.nome_produto;
+                    document.getElementById('tipoItemCadastro').value = item.tipo_item;
+                    document.getElementById('estoqueAtualCadastro').value = item.estoque_atual;
+                    document.getElementById('estoqueCritico').value = item.estoque_critico;
+                    document.getElementById('estoqueSeguranca').value = item.estoque_seguranca;
+                    document.getElementById('estoqueMaximo').value = item.estoque_maximo;
+                    document.getElementById('estoqueMinimo').value = item.estoque_minimo;
+                    
+                    if (item.tipo_item === 'EPI') {
+                        document.getElementById('caEpi').value = item.ca_epi;
+                        document.getElementById('tamanhoEpi').value = item.tamanho_epi;
+                        document.getElementById('epiFields').style.display = 'block';
+                        document.getElementById('materialFields').style.display = 'none';
+                    } else if (item.tipo_item === 'Material') {
+                        document.getElementById('tipoMaterial').value = item.tipo_material;
+                        document.getElementById('dimensoesMaterial').value = item.dimensoes_material;
+                        document.getElementById('materialFields').style.display = 'block';
+                        document.getElementById('epiFields').style.display = 'none';
+                    }
+                    
+                    showCustomAlert(`Editando item ${item.codigo} - ${item.nome_produto}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar item para edição');
+            });
     }
 
+    // Função para ver histórico (global para ser acessível nos eventos)
     window.verHistorico = function(codigo) {
-        const movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
-        const historico = movimentacoes.filter(mov => mov.codigo === codigo);
-        
-        if (historico.length === 0) {
-            showCustomAlert('Nenhuma movimentação encontrada para este item.');
-            return;
-        }
-        
-        // Busca o nome do produto para exibir no título
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        const item = itens.find(i => i.codigo === codigo);
-        const nomeProduto = item ? item.nomeProduto : '';
-        
-        // Atualiza o título da modal
-        document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
-        
-        // Preenche o corpo da tabela
-        const tbody = document.getElementById('historicoModalBody');
-        tbody.innerHTML = '';
-        
-        historico.forEach(mov => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${formatarData(mov.data)}</td>
-                <td class="${mov.registro === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
-                    ${mov.registro === 'entrada' ? 'Entrada' : 'Saída'}
-                </td>
-                <td>${mov.quantidade}</td>
-                <td>${mov.empresa}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-        
-        // Exibe a modal
-        const modal = document.getElementById('historicoModal');
-        modal.style.display = 'flex';
-        
-        // Fecha a modal ao clicar no X ou fora do conteúdo
-        document.querySelector('.modal-close').onclick = function() {
-            modal.style.display = 'none';
-        };
-        
-        modal.onclick = function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
+        fetch(`php/movimentacoes.php?item_codigo=${codigo}`)
+            .then(response => response.json())
+            .then(historico => {
+                if (historico.length === 0) {
+                    showCustomAlert('Nenhuma movimentação encontrada para este item.');
+                    return;
+                }
+                
+                // Busca o nome do produto para exibir no título
+                fetch(`php/itens.php?codigo=${codigo}`)
+                    .then(response => response.json())
+                    .then(item => {
+                        const nomeProduto = item ? item.nome_produto : '';
+                        
+                        // Atualiza o título da modal
+                        document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
+                        
+                        // Preenche o corpo da tabela
+                        const tbody = document.getElementById('historicoModalBody');
+                        tbody.innerHTML = '';
+                        
+                        historico.forEach(mov => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${formatarData(mov.data)}</td>
+                                <td class="${mov.tipo === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
+                                    ${mov.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                                </td>
+                                <td>${mov.quantidade}</td>
+                                <td>${mov.empresa_nome}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                        
+                        // Exibe a modal
+                        const modal = document.getElementById('historicoModal');
+                        modal.style.display = 'flex';
+                        
+                        // Fecha a modal ao clicar no X ou fora do conteúdo
+                        document.querySelector('.modal-close').onclick = function() {
+                            modal.style.display = 'none';
+                        };
+                        
+                        modal.onclick = function(e) {
+                            if (e.target === modal) {
+                                modal.style.display = 'none';
+                            }
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showCustomAlert('Erro ao carregar detalhes do item');
+                    });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar histórico');
+            });
     }
 
-    function formatarData(dataString) {
-        const data = new Date(dataString);
-        return data.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
+    // Função para atualizar lista de movimentações
     function atualizarListaMovimentacoes() {
         const listaMovimentacoes = document.getElementById('listaMovimentacoes');
         listaMovimentacoes.innerHTML = '';
-        const movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
         
+        let url = 'php/movimentacoes.php';
         const tipoFiltro = filtroTipoMovimentacao.value;
         const textoFiltro = filtroMovimentacao.value.toLowerCase();
         
-        const movimentacoesFiltradas = movimentacoes.filter(mov => {
-            const atendeTipo = !tipoFiltro || mov.registro === tipoFiltro;
-            const atendeTexto = !textoFiltro || mov.nomeProduto.toLowerCase().includes(textoFiltro);
-            return atendeTipo && atendeTexto;
-        });
+        if (tipoFiltro) {
+            url += `?tipo=${tipoFiltro}`;
+        }
         
-        movimentacoesFiltradas.sort((a, b) => new Date(b.data) - new Date(a.data));
+        if (textoFiltro) {
+            url += `${tipoFiltro ? '&' : '?'}filtro=${encodeURIComponent(textoFiltro)}`;
+        }
         
-        movimentacoesFiltradas.forEach(mov => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${formatarData(mov.data)}</td>
-                <td class="${mov.registro === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
-                    ${mov.registro === 'entrada' ? 'Entrada' : 'Saída'}
-                </td>
-                <td>${mov.codigo}</td>
-                <td>${mov.nomeProduto}</td>
-                <td>${mov.quantidade}</td>
-                <td>${mov.empresa}</td>
-            `;
-            listaMovimentacoes.appendChild(tr);
-        });
+        fetch(url)
+            .then(response => response.json())
+            .then(movimentacoes => {
+                movimentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
+                
+                movimentacoes.forEach(mov => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${formatarData(mov.data)}</td>
+                        <td class="${mov.tipo === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
+                            ${mov.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                        </td>
+                        <td>${mov.item_codigo}</td>
+                        <td>${mov.nome_produto}</td>
+                        <td>${mov.quantidade}</td>
+                        <td>${mov.empresa_nome}</td>
+                    `;
+                    listaMovimentacoes.appendChild(tr);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar movimentações');
+            });
     }
 
+    // Evento change do selectProduto
+    selectProduto.addEventListener('change', function () {
+        const codigoItem = this.value;
+        
+        if (!codigoItem) {
+            estoqueAtualInput.value = '';
+            tipoItemInput.value = '';
+            detalhesItemInput.value = '';
+            codigoInput.value = '';
+            return;
+        }
+
+        // Busca os detalhes completos do item selecionado
+        fetch(`php/itens.php?codigo=${codigoItem}`)
+            .then(response => response.json())
+            .then(item => {
+                if (item) {
+                    estoqueAtualInput.value = item.estoque_atual;
+                    tipoItemInput.value = item.tipo_item;
+                    codigoInput.value = item.codigo;
+
+                    // Preenche os detalhes conforme o tipo do item
+                    if (item.tipo_item === 'EPI') {
+                        detalhesItemInput.value = `CA: ${item.ca_epi}, Tamanho: ${item.tamanho_epi}`;
+                    } else if (item.tipo_item === 'Material') {
+                        detalhesItemInput.value = `Tipo: ${item.tipo_material}, Dimensões: ${item.dimensoes_material}`;
+                    } else {
+                        detalhesItemInput.value = '';
+                    }
+                } else {
+                    limparCamposMovimentacao();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar detalhes do produto');
+                limparCamposMovimentacao();
+            });
+    });
+
+    // Função para alternar entre os conteúdos
     function toggleContent() {
         const selectedValue = document.querySelector('input[name="registro"]:checked').value;
         movimentacaoForm.style.display = 'none';
@@ -452,11 +623,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 pageTitle.textContent = 'Tela de Movimentações - Entrada';
                 movimentacaoForm.style.display = 'block';
                 carregarProdutosNoSelect();
+                carregarEmpresas();
                 break;
             case 'saida':
                 pageTitle.textContent = 'Tela de Movimentações - Saída';
                 movimentacaoForm.style.display = 'block';
                 carregarProdutosNoSelect();
+                carregarEmpresas();
                 break;
             case 'estoque':
                 pageTitle.textContent = 'Tela de Movimentações - Estoque';
@@ -479,111 +652,49 @@ document.addEventListener('DOMContentLoaded', function() {
         carregarItensParaExclusao();
     }
 
+    // Função para gerar novo código
     function gerarNovoCodigo() {
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        let ultimoCodigo = 0;
-        
-        itens.forEach(item => {
-            const match = item.codigo.match(/\d+/);
-            if (match) {
-                const codigoNum = parseInt(match[0]);
-                if (codigoNum > ultimoCodigo) {
-                    ultimoCodigo = codigoNum;
-                }
-            }
-        });
-        
-        const novoCodigo = (ultimoCodigo + 1).toString().padStart(3, '0');
-        codigoCadastroInput.value = novoCodigo;
+        fetch('php/itens.php')
+            .then(response => response.json())
+            .then(itens => {
+                let ultimoCodigo = 0;
+                
+                itens.forEach(item => {
+                    const match = item.codigo.match(/\d+/);
+                    if (match) {
+                        const codigoNum = parseInt(match[0]);
+                        if (codigoNum > ultimoCodigo) {
+                            ultimoCodigo = codigoNum;
+                        }
+                    }
+                });
+                
+                const novoCodigo = (ultimoCodigo + 1).toString().padStart(3, '0');
+                codigoCadastroInput.value = novoCodigo;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                codigoCadastroInput.value = '001';
+            });
     }
 
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', toggleContent);
-    });
-
-    function carregarProdutosNoSelect() {
-        selectProduto.innerHTML = '<option value="">Selecione um produto</option>';
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        itens.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.nomeProduto;
-            option.textContent = item.nomeProduto;
-            selectProduto.appendChild(option);
-        });
-    }
-
-    function carregarItensParaExclusao() {
-        itemParaExcluirSelect.innerHTML = '<option value="">Selecione um item</option>';
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        itens.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.nomeProduto;
-            option.textContent = `${item.codigo} - ${item.nomeProduto}`;
-            itemParaExcluirSelect.appendChild(option);
-        });
-    }
-
-    selectProduto.addEventListener('change', function () {
-        const nomeProduto = selectProduto.value;
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        const itemSelecionado = itens.find(item => item.nomeProduto === nomeProduto);
-
-        if (itemSelecionado) {
-            estoqueAtualInput.value = itemSelecionado.estoqueAtual;
-            tipoItemInput.value = itemSelecionado.tipoItem;
-            codigoInput.value = itemSelecionado.codigo;
-            
-            if (itemSelecionado.tipoItem === 'EPI') {
-                detalhesItemInput.value = `CA: ${itemSelecionado.ca}, Tamanho: ${itemSelecionado.tamanho}`;
-            } else if (itemSelecionado.tipoItem === 'Material') {
-                detalhesItemInput.value = `Tipo: ${itemSelecionado.tipoMaterial}, Dimensões: ${itemSelecionado.dimensoes}`;
-            }
-        } else {
-            estoqueAtualInput.value = '';
-            tipoItemInput.value = '';
-            detalhesItemInput.value = '';
-            codigoInput.value = '';
-            empresaInput.innerHTML = '<option value="">Selecione uma empresa</option>' +
-                                    '<option value="Empresa 1 - CNPJ: 12.345.678/0001-00">Empresa 1 - CNPJ: 12.345.678/0001-00</option>' +
-                                    '<option value="Empresa 2 - CNPJ: 98.765.432/0001-11">Empresa 2 - CNPJ: 98.765.432/0001-11</option>' +
-                                    '<option value="Empresa 3 - CNPJ: 45.678.901/0001-22">Empresa 3 - CNPJ: 45.678.901/0001-22</option>';
-        }
-    });
-
-    function validarData(data) {
-        if (!data) {
-            showCustomAlert('Por favor, selecione uma data!');
-            return false;
-        }
-
-        const dataSelecionada = new Date(data);
-        const dataMinima = new Date('2025-01-01');
-        const dataMaxima = new Date('2026-01-01');
-
-        if (dataSelecionada < dataMinima || dataSelecionada > dataMaxima) {
-            showCustomAlert('A data deve estar entre 01/01/2025 e 01/01/2026!');
-            return false;
-        }
-
-        return true;
-    }
-
+    // Evento para o botão salvar
     saveButton.addEventListener('click', function (event) {
         event.preventDefault();
         const selectedValue = document.querySelector('input[name="registro"]:checked').value;
 
         if (selectedValue === 'entrada' || selectedValue === 'saida') {
-            const nomeProduto = selectProduto.value;
-            const empresa = empresaInput.value;
+            const codigoItem = selectProduto.value;
+            const cnpjEmpresa = empresaInput.value;
             const quantidade = parseInt(document.getElementById('quantidade').value);
             const data = document.getElementById('data').value;
 
-            if (!nomeProduto) {
+            if (!codigoItem) {
                 showCustomAlert('Por favor, selecione um produto!');
                 return;
             }
 
-            if (!empresa) {
+            if (!cnpjEmpresa) {
                 showCustomAlert('Por favor, selecione uma empresa!');
                 return;
             }
@@ -593,72 +704,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (!validarData(data)) {
+            if (!data) {
+                showCustomAlert('Por favor, selecione uma data!');
                 return;
             }
 
-            const itens = JSON.parse(localStorage.getItem('itens')) || [];
-            const itemIndex = itens.findIndex(item => item.nomeProduto === nomeProduto);
-            
-            if (itemIndex === -1) {
-                showCustomAlert('Produto não encontrado!');
-                return;
-            }
-
-            const item = itens[itemIndex];
-            
-            if (selectedValue === 'entrada') {
-                const novoEstoque = item.estoqueAtual + quantidade;
-                
-                if (novoEstoque > item.estoqueMaximo) {
+            // Envia a movimentação para o servidor
+            fetch('php/movimentacoes.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tipo: selectedValue,
+                    codigo_item: codigoItem,
+                    cnpj_empresa: cnpjEmpresa,
+                    quantidade: quantidade,
+                    data: data
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSucessAlert(data.message);
                     limparCamposMovimentacao();
-                    showCustomAlert(`Não é possível dar entrada de ${quantidade} unidades!<br><br>
-                                    Estoque atual: ${item.estoqueAtual} unidades<br>
-                                    Estoque máximo permitido: ${item.estoqueMaximo} unidades<br>
-                                    Quantidade excedente: ${novoEstoque - item.estoqueMaximo} unidades`);
-                    return;
+                    atualizarListaMovimentacoes();
+                    carregarProdutosNoSelect();
+                    carregarItensParaExclusao();
+                    atualizarEstoque();
+                } else {
+                    showCustomAlert(data.message || 'Erro ao registrar movimentação');
                 }
-            }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao registrar movimentação');
+            });
 
-            if (selectedValue === 'saida') {
-                if (item.estoqueAtual < quantidade) {
-                    limparCamposMovimentacao();
-                    showCustomAlert(`Estoque insuficiente para esta saída!<br><br>
-                                    Estoque atual: ${item.estoqueAtual} unidades<br>
-                                    Quantidade solicitada: ${quantidade} unidades`);
-                    return;
-                }
-            }
-
-            const movimentacao = {
-                registro: selectedValue,
-                nomeProduto,
-                empresa,
-                quantidade,
-                data,
-                codigo: codigoInput.value
-            };
-
-            if (selectedValue === 'entrada') {
-                itens[itemIndex].estoqueAtual += quantidade;
-            } else if (selectedValue === 'saida') {
-                itens[itemIndex].estoqueAtual -= quantidade;
-            }
-            
-            itens[itemIndex].empresa = empresa;
-            
-            localStorage.setItem('itens', JSON.stringify(itens));
-
-            let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
-            movimentacoes.push(movimentacao);
-            localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
-
-            atualizarListaMovimentacoes();
-            carregarProdutosNoSelect();
-            carregarItensParaExclusao();
-            atualizarEstoque();
-
-            limparCamposMovimentacao();
         } else if (selectedValue === 'cadastro') {
             const codigo = codigoCadastroInput.value;
             const nomeProdutoCadastro = document.getElementById('nomeProdutoCadastro').value;
@@ -676,86 +758,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const item = {
                 codigo: codigo,
-                nomeProduto: nomeProdutoCadastro,
-                tipoItem: tipoItem,
-                estoqueAtual: estoqueAtual,
-                estoqueCritico: estoqueCritico,
-                estoqueSeguranca: estoqueSeguranca,
-                estoqueMaximo: estoqueMaximo,
-                estoqueMinimo: estoqueMinimo,
-                empresa: ''
+                nome_produto: nomeProdutoCadastro,
+                tipo_item: tipoItem,
+                estoque_atual: estoqueAtual,
+                estoque_critico: estoqueCritico,
+                estoque_seguranca: estoqueSeguranca,
+                estoque_maximo: estoqueMaximo,
+                estoque_minimo: estoqueMinimo
             };
 
             if (tipoItem === 'EPI') {
-                item.ca = document.getElementById('caEpi').value;
-                item.tamanho = document.getElementById('tamanhoEpi').value;
+                item.ca_epi = document.getElementById('caEpi').value;
+                item.tamanho_epi = document.getElementById('tamanhoEpi').value;
                 
-                if (!item.ca) {
+                if (!item.ca_epi) {
                     showCustomAlert('Por favor, informe o CA do EPI!');
                     return;
                 }
             } else if (tipoItem === 'Material') {
-                item.tipoMaterial = document.getElementById('tipoMaterial').value;
-                item.dimensoes = document.getElementById('dimensoesMaterial').value;
+                item.tipo_material = document.getElementById('tipoMaterial').value;
+                item.dimensoes_material = document.getElementById('dimensoesMaterial').value;
                 
-                if (!item.tipoMaterial) {
+                if (!item.tipo_material) {
                     showCustomAlert('Por favor, informe o tipo de material!');
                     return;
                 }
                 
                 const dimensoesPattern = /^\d+,\d+x\d+,\d+$/;
-                if (!dimensoesPattern.test(item.dimensoes)) {
+                if (!dimensoesPattern.test(item.dimensoes_material)) {
                     showCustomAlert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
                     return;
                 }
             }
 
-            let itens = JSON.parse(localStorage.getItem('itens')) || [];
-            
-            const nomeExistente = itens.find(item => item.nomeProduto === nomeProdutoCadastro);
-            if (nomeExistente) {
-                showCustomAlert('Este nome de produto já está cadastrado!');
-                return;
-            }
-            
-            itens.push(item);
-            localStorage.setItem('itens', JSON.stringify(itens));
-
-            formCadastroItem.reset();
-            tipoItemCadastro.value = '';
-            epiFields.style.display = 'none';
-            materialFields.style.display = 'none';
-            gerarNovoCodigo();
-            carregarProdutosNoSelect();
-            carregarItensParaExclusao();
-            showSucessAlert('Item cadastrado com sucesso!');
+            // Envia o item para o servidor
+            fetch('php/itens.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(item)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSucessAlert(data.message);
+                    formCadastroItem.reset();
+                    tipoItemCadastro.value = '';
+                    epiFields.style.display = 'none';
+                    materialFields.style.display = 'none';
+                    gerarNovoCodigo();
+                    carregarProdutosNoSelect();
+                    carregarItensParaExclusao();
+                    atualizarEstoque();
+                } else {
+                    showCustomAlert(data.message || 'Erro ao cadastrar item');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao cadastrar item');
+            });
         }
     });
 
+    // Evento para excluir item
     deleteItemButton.addEventListener('click', function() {
-        const nomeProduto = itemParaExcluirSelect.value;
+        const codigoItem = itemParaExcluirSelect.value;
         
-        if (!nomeProduto) {
+        if (!codigoItem) {
             showCustomAlert('Por favor, selecione um item para excluir!');
             return;
         }
         
-        showCustomConfirm(`Tem certeza que deseja excluir o item "${nomeProduto}"? Esta ação não pode ser desfeita.`, function(confirmed) {
+        showCustomConfirm(`Tem certeza que deseja excluir o item "${codigoItem}"? Esta ação não pode ser desfeita.`, function(confirmed) {
             if (confirmed) {
-                let itens = JSON.parse(localStorage.getItem('itens')) || [];
-                itens = itens.filter(item => item.nomeProduto !== nomeProduto);
-                localStorage.setItem('itens', JSON.stringify(itens));
-                
-                let movimentacoes = JSON.parse(localStorage.getItem('movimentacoes')) || [];
-                movimentacoes = movimentacoes.filter(mov => mov.nomeProduto !== nomeProduto);
-                localStorage.setItem('movimentacoes', JSON.stringify(movimentacoes));
-                
-                carregarItensParaExclusao();
-                carregarProdutosNoSelect();
-                atualizarEstoque();
-                atualizarListaMovimentacoes();
-                
-                showSucessAlert(`Item "${nomeProduto}" excluído com sucesso!`);
+                fetch(`php/itens.php?codigo=${codigoItem}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSucessAlert(data.message);
+                        carregarItensParaExclusao();
+                        carregarProdutosNoSelect();
+                        atualizarEstoque();
+                        atualizarListaMovimentacoes();
+                    } else {
+                        showCustomAlert(data.message || 'Erro ao excluir item');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showCustomAlert('Erro ao excluir item');
+                });
             }
         });
     });
@@ -789,86 +885,92 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Botão para gerar relatório - VERSÃO ATUALIZADA
+    // Botão para gerar relatório
     btnRelatorio.addEventListener('click', function() {
-        const itens = JSON.parse(localStorage.getItem('itens')) || [];
-        
-        // Criar um iframe oculto para gerar o relatório
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-        
-        const doc = iframe.contentWindow.document;
-        
-        // Estilos para impressão
-        doc.open();
-        doc.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Relatório de Estoque</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    h2 { color:rgb(0, 0, 0); text-align: center; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th { background-color:rgb(0, 0, 0); color: white; padding: 10px; text-align: center; }
-                    td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-                    tr:nth-child(even) { background-color:rgb(0, 0, 0); }
-                    .critico { color:rgb(0, 0, 0); }
-                    .baixo { color:rgb(0, 0, 0); }
-                    
-                    @media print {
-                        body { margin: 0; padding: 0; }
-                        .no-print { display: none; }
-                    }
-                </style>
-            </head>
-            <body>
-                <h2>Relatório de Estoque - ${new Date().toLocaleDateString('pt-BR')}</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Produto</th>
-                            <th>Tipo</th>
-                            <th>Estoque Atual</th>
-                            <th>Mínimo</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itens.map(item => {
-                            const status = item.estoqueAtual <= item.estoqueCritico ? 'CRÍTICO' : 
-                                           item.estoqueAtual <= item.estoqueMinimo ? 'BAIXO' : 'NORMAL';
-                            const classeStatus = status === 'CRÍTICO' ? 'critico' : 
-                                               status === 'BAIXO' ? 'baixo' : '';
-                            return `
+        fetch('php/itens.php')
+            .then(response => response.json())
+            .then(itens => {
+                // Criar um iframe oculto para gerar o relatório
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                const doc = iframe.contentWindow.document;
+                
+                // Estilos para impressão
+                doc.open();
+                doc.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Relatório de Estoque</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            h2 { color: #333; text-align: center; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th { background-color: #333; color: white; padding: 10px; text-align: center; }
+                            td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+                            tr:nth-child(even) { background-color: #f2f2f2; }
+                            .critico { color: red; font-weight: bold; }
+                            .baixo { color: orange; font-weight: bold; }
+                            
+                            @media print {
+                                body { margin: 0; padding: 0; }
+                                .no-print { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Relatório de Estoque - ${new Date().toLocaleDateString('pt-BR')}</h2>
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>${item.codigo}</td>
-                                    <td>${item.nomeProduto}</td>
-                                    <td>${item.tipoItem}</td>
-                                    <td>${item.estoqueAtual}</td>
-                                    <td>${item.estoqueMinimo}</td>
-                                    <td class="${classeStatus}">${status}</td>
+                                    <th>Código</th>
+                                    <th>Produto</th>
+                                    <th>Tipo</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Mínimo</th>
+                                    <th>Status</th>
                                 </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-                <div class="no-print" style="margin-top: 20px; text-align: center;">
-                    <button onclick="window.print()">Imprimir</button>
-                    <button onclick="window.close()">Fechar</button>
-                </div>
-            </body>
-            </html>
-        `);
-        doc.close();
-        
-        // Focar no iframe e chamar a impressão
-        setTimeout(() => {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-        }, 300);
+                            </thead>
+                            <tbody>
+                                ${itens.map(item => {
+                                    const status = item.estoque_atual <= item.estoque_critico ? 'CRÍTICO' : 
+                                                   item.estoque_atual <= item.estoque_minimo ? 'BAIXO' : 'NORMAL';
+                                    const classeStatus = status === 'CRÍTICO' ? 'critico' : 
+                                                       status === 'BAIXO' ? 'baixo' : '';
+                                    return `
+                                        <tr>
+                                            <td>${item.codigo}</td>
+                                            <td>${item.nome_produto}</td>
+                                            <td>${item.tipo_item}</td>
+                                            <td>${item.estoque_atual}</td>
+                                            <td>${item.estoque_minimo}</td>
+                                            <td class="${classeStatus}">${status}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                        <div class="no-print" style="margin-top: 20px; text-align: center;">
+                            <button onclick="window.print()">Imprimir</button>
+                            <button onclick="window.close()">Fechar</button>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                doc.close();
+                
+                // Focar no iframe e chamar a impressão
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }, 300);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao gerar relatório');
+            });
     });
 
     // Mostrar/ocultar campos de EPI ou Material conforme seleção
@@ -885,7 +987,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Eventos para os radio buttons
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', toggleContent);
+    });
+
     // Inicialização
+    carregarEmpresas();
     atualizarListaMovimentacoes();
     toggleContent();
 });
