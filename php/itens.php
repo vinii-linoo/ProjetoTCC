@@ -43,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $codigo = sanitizeInput($data['codigo']);
     $nomeProduto = sanitizeInput($data['nome_produto']);
+    //Adicionado
+    $item2 = sanitizeInput($data['tipoItemCadastro']);
+    //Não Alterado
     $tipoItem = sanitizeInput($data['tipo_item']);
     $estoqueAtual = intval($data['estoque_atual']);
     $estoqueCritico = intval($data['estoque_critico']);
@@ -77,14 +80,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Insere novo item
         $stmt = $conn->prepare("INSERT INTO itens (
-            codigo, nome_produto, tipo_item, estoque_atual, estoque_critico,
+            codigo, nome_produto,estoque_atual, estoque_critico,tipo_item,
             estoque_seguranca, estoque_maximo, estoque_minimo, empresa_id, ca_epi, tamanho_epi,
             tipo_material, dimensoes_material
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        
-        $stmt->bind_param("ssiiiiissssss", $codigo, $nomeProduto, $tipoItem, $estoqueAtual, $estoqueCritico,
+        ) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+
+        $stmt->bind_param("sssiiiissssss", $codigo, $nomeProduto,$item2, $estoqueAtual, $estoqueCritico,
             $estoqueSeguranca, $estoqueMaximo, $estoqueMinimo, $empresaId, $caEpi, $tamanhoEpi,
             $tipoMaterial, $dimensoesMaterial);
+            
+            $item = $conn->prepare("INSERT INTO itens (tipo_item) VALUES (?)");
+            $item_true = true;
+            if($item_true == true){
+                return $item_true = "EPI";             
+            } else {
+                return $item_true = "Produto";
+            }
+
+            $item->bind_param("s",$item_true);
+
     }
     
     if ($stmt->execute()) {

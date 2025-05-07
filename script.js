@@ -804,7 +804,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     showSucessAlert(data.message);
                     formCadastroItem.reset();
-                    tipoItemCadastro.value = '';
+                    tipoItemCadastro.value = 'tipoItemCadastro';
                     epiFields.style.display = 'none';
                     materialFields.style.display = 'none';
                     gerarNovoCodigo();
