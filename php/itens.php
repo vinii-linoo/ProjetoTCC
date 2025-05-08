@@ -4,6 +4,8 @@ require_once 'config.php';
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
 
+try {
+    $conn = getDBConnection();
 $conn = getDBConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -41,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
+    // Log para depuração (pode remover depois)
+    error_log('Dados recebidos: ' . print_r($data, true));
+    
     $codigo = sanitizeInput($data['codigo']);
     $nomeProduto = sanitizeInput($data['nome_produto']);
-    //Adicionado
-    $item2 = sanitizeInput($data['tipoItemCadastro']);
-    //Não Alterado
     $tipoItem = sanitizeInput($data['tipo_item']);
     $estoqueAtual = intval($data['estoque_atual']);
     $estoqueCritico = intval($data['estoque_critico']);
@@ -55,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $empresaId = isset($data['empresa_id']) ? intval($data['empresa_id']) : null;
     
     // Campos específicos por tipo
-    $caEpi = $tipoItem === 'EPI' ? sanitizeInput($data['ca_epi']) : null;
-    $tamanhoEpi = $tipoItem === 'EPI' ? sanitizeInput($data['tamanho_epi']) : null;
-    $tipoMaterial = $tipoItem === 'Material' ? sanitizeInput($data['tipo_material']) : null;
-    $dimensoesMaterial = $tipoItem === 'Material' ? sanitizeInput($data['dimensoes_material']) : null;
+    $caEpi = ($tipoItem === 'EPI' && isset($data['ca_epi'])) ? sanitizeInput($data['ca_epi']) : null;
+    $tamanhoEpi = ($tipoItem === 'EPI' && isset($data['tamanho_epi'])) ? sanitizeInput($data['tamanho_epi']) : null;
+    $tipoMaterial = ($tipoItem === 'Material' && isset($data['tipo_material'])) ? sanitizeInput($data['tipo_material']) : null;
+    $dimensoesMaterial = ($tipoItem === 'Material' && isset($data['dimensoes_material'])) ? sanitizeInput($data['dimensoes_material']) : null;
 
     // Verifica se é atualização ou novo item
     $stmt = $conn->prepare("SELECT id FROM itens WHERE codigo = ?");
@@ -78,28 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $estoqueSeguranca, $estoqueMaximo, $estoqueMinimo, $empresaId, $caEpi, $tamanhoEpi,
             $tipoMaterial, $dimensoesMaterial, $codigo);
     } else {
-        // Insere novo item
+        // Insere novo item - CORRIGIDO
         $stmt = $conn->prepare("INSERT INTO itens (
-            codigo, nome_produto,estoque_atual, estoque_critico,tipo_item,
-            estoque_seguranca, estoque_maximo, estoque_minimo, empresa_id, ca_epi, tamanho_epi,
-            tipo_material, dimensoes_material
-        ) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            codigo, nome_produto, tipo_item, estoque_atual, estoque_critico,
+            estoque_seguranca, estoque_maximo, estoque_minimo, empresa_id,
+            ca_epi, tamanho_epi, tipo_material, dimensoes_material
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-
-        $stmt->bind_param("sssiiiissssss", $codigo, $nomeProduto,$item2, $estoqueAtual, $estoqueCritico,
-            $estoqueSeguranca, $estoqueMaximo, $estoqueMinimo, $empresaId, $caEpi, $tamanhoEpi,
-            $tipoMaterial, $dimensoesMaterial);
-            
-            $item = $conn->prepare("INSERT INTO itens (tipo_item) VALUES (?)");
-            $item_true = true;
-            if($item_true == true){
-                return $item_true = "EPI";             
-            } else {
-                return $item_true = "Produto";
-            }
-
-            $item->bind_param("s",$item_true);
-
+        $stmt->bind_param("sssiiiiiissss", $codigo, $nomeProduto, $tipoItem, $estoqueAtual,
+            $estoqueCritico, $estoqueSeguranca, $estoqueMaximo, $estoqueMinimo, $empresaId,
+            $caEpi, $tamanhoEpi, $tipoMaterial, $dimensoesMaterial);
     }
     
     if ($stmt->execute()) {
@@ -127,6 +117,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     
     $stmt->close();
     $conn->close();
+    exit;
+}
+
+function sanitizeInput($data) {
+    return htmlspecialchars(strip_tags(trim($data)));
+}
+} catch (Exception $e) {
+  
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro no servidor: ' . $e->getMessage()
+    ]);
     exit;
 }
 ?>

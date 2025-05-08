@@ -1,4 +1,12 @@
-// Funções utilitárias
+// =============================================
+// FUNÇÕES UTILITÁRIAS
+// =============================================
+
+/**
+ * Exibe uma mensagem temporária na tela
+ * @param {string} message - Mensagem a ser exibida
+ * @param {string|null} redirectUrl - URL para redirecionamento (opcional)
+ */
 function showTempMessage(message, redirectUrl = null) {
     const messageDiv = document.createElement('div');
     messageDiv.textContent = message;
@@ -13,9 +21,9 @@ function showTempMessage(message, redirectUrl = null) {
     messageDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
     messageDiv.style.zIndex = '1000';
     messageDiv.style.animation = 'fadeIn 0.3s ease-out';
-    
+
     document.body.appendChild(messageDiv);
-    
+
     setTimeout(() => {
         messageDiv.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => {
@@ -24,14 +32,24 @@ function showTempMessage(message, redirectUrl = null) {
                 window.location.href = redirectUrl;
             }
         }, 300);
-    }, 1000);
+    }, 3000);
 }
 
+/**
+ * Valida um endereço de email
+ * @param {string} email - Email a ser validado
+ * @returns {boolean} - Retorna true se o email é válido
+ */
 function validateEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
 
+/**
+ * Formata uma data para o padrão brasileiro
+ * @param {string} dataString - Data em formato string
+ * @returns {string} - Data formatada
+ */
 function formatarData(dataString) {
     const data = new Date(dataString);
     return data.toLocaleDateString('pt-BR', {
@@ -43,24 +61,27 @@ function formatarData(dataString) {
     });
 }
 
-// Funções para mostrar alertas personalizados
+// =============================================
+// SISTEMA DE ALERTAS PERSONALIZADOS
+// =============================================
+
 function showCustomAlert(message) {
     const alert = document.getElementById('customAlert');
     const alertMessage = document.getElementById('customAlertMessage');
     const closeButton = document.querySelector('.custom-alert-close');
-    
+
     alertMessage.innerHTML = message;
     alert.style.display = 'block';
-    
+
     const timer = setTimeout(() => {
         hideCustomAlert();
     }, 5000);
-    
-    closeButton.onclick = function() {
+
+    closeButton.onclick = function () {
         clearTimeout(timer);
         hideCustomAlert();
     };
-    
+
     document.querySelector('.custom-alert-timer').style.animation = 'none';
     void document.querySelector('.custom-alert-timer').offsetWidth;
     document.querySelector('.custom-alert-timer').style.animation = 'timer 5s linear forwards';
@@ -79,19 +100,19 @@ function showSucessAlert(message) {
     const alert = document.getElementById('sucessAlert');
     const alertMessage = document.getElementById('sucessAlertMessage');
     const closeButton = document.querySelector('.sucess-alert-close');
-    
+
     alertMessage.innerHTML = message;
     alert.style.display = 'block';
-    
+
     const timer = setTimeout(() => {
         hideSucessAlert();
     }, 5000);
-    
-    closeButton.onclick = function() {
+
+    closeButton.onclick = function () {
         clearTimeout(timer);
         hideSucessAlert();
     };
-    
+
     document.querySelector('.sucess-alert-timer').style.animation = 'none';
     void document.querySelector('.sucess-alert-timer').offsetWidth;
     document.querySelector('.sucess-alert-timer').style.animation = 'timer 5s linear forwards';
@@ -115,41 +136,26 @@ function showCustomConfirm(message, callback) {
     confirmMessage.textContent = message;
     confirmBox.style.display = 'block';
 
-    confirmYes.onclick = function() {
+    confirmYes.onclick = function () {
         confirmBox.style.display = 'none';
         callback(true);
     };
 
-    confirmNo.onclick = function() {
+    confirmNo.onclick = function () {
         confirmBox.style.display = 'none';
         callback(false);
     };
 }
 
-// Adiciona estilos para animações
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    @keyframes fadeOut {
-        from { opacity: 1; transform: translateX(-50%) translateY(0); }
-        to { opacity: 0; transform: translateX(100%) translateY(0px); }
-    }
-    @keyframes timer {
-        from { width: 100%; }
-        to { width: 0%; }
-    }
-`;
-document.head.appendChild(style);
+// =============================================
+// SISTEMA DE LOGIN E REGISTRO
+// =============================================
 
-// Login e Registro
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
 if (loginForm) {
-    loginForm.addEventListener('submit', function(event) {
+    loginForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -161,23 +167,23 @@ if (loginForm) {
             },
             body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showTempMessage('Login bem-sucedido!', data.redirect);
-            } else {
-                showTempMessage(data.message || 'E-mail ou senha incorretos.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showTempMessage('Erro ao fazer login. Tente novamente.');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showTempMessage('Login bem-sucedido!', data.redirect);
+                } else {
+                    showTempMessage(data.message || 'E-mail ou senha incorretos.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showTempMessage('Erro ao fazer login. Tente novamente.');
+            });
     });
 }
 
 if (registerForm) {
-    registerForm.addEventListener('submit', function(event) {
+    registerForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const newUsername = document.getElementById('newUsername').value;
         const newEmail = document.getElementById('newEmail').value;
@@ -201,29 +207,29 @@ if (registerForm) {
             },
             body: `newUsername=${encodeURIComponent(newUsername)}&newEmail=${encodeURIComponent(newEmail)}&newPassword=${encodeURIComponent(newPassword)}&confirmPassword=${encodeURIComponent(confirmPassword)}`
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showTempMessage(data.message, data.redirect);
-            registerForm.reset();
-            document.querySelector('input[type="password"]').value = '';
-        } else {
-            showTempMessage(data.message || 'Erro ao registrar usuário.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showTempMessage('Erro ao registrar. Tente novamente.');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showTempMessage(data.message, data.redirect);
+                    registerForm.reset();
+                    document.querySelector('input[type="password"]').value = '';
+                } else {
+                    showTempMessage(data.message || 'Erro ao registrar usuário.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showTempMessage('Erro ao registrar. Tente novamente.');
+            });
     });
-});
 }
 
-// Sistema de Controle de Estoque
-document.addEventListener('DOMContentLoaded', function() {
-    // Verifica se estamos na página de movimentação
-    if (!document.getElementById('pageTitle')) return;
+// =============================================
+// SISTEMA DE CONTROLE DE ESTOQUE
+// =============================================
 
-    // Variáveis do sistema principal
+document.addEventListener('DOMContentLoaded', function () {
+    // Elementos da interface
     const formMovimentacao = document.getElementById('cadastroMovimentacaoForm');
     const formCadastroItem = document.getElementById('cadastroItemForm');
     const saveButton = document.getElementById('saveButton');
@@ -243,8 +249,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemParaExcluirSelect = document.getElementById('itemParaExcluir');
     const codigoCadastroInput = document.getElementById('codigoCadastro');
     const pageTitle = document.getElementById('pageTitle');
-    
-    // Variáveis para cadastro de itens
+
+    // Elementos para cadastro de itens
     const tipoItemCadastro = document.getElementById('tipoItemCadastro');
     const epiFields = document.getElementById('epiFields');
     const materialFields = document.getElementById('materialFields');
@@ -252,13 +258,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const tamanhoEpi = document.getElementById('tamanhoEpi');
     const tipoMaterial = document.getElementById('tipoMaterial');
     const dimensoesMaterial = document.getElementById('dimensoesMaterial');
-    
-    // Variáveis para o filtro de estoque
+
+    // Elementos para filtros
     const tipoFiltroEstoque = document.getElementById('tipoFiltroEstoque');
     const campoFiltroEstoque = document.getElementById('campoFiltroEstoque');
     const btnRelatorio = document.getElementById('btnRelatorio');
-    
-    // Variáveis para o filtro de movimentações
     const filtroTipoMovimentacao = document.getElementById('filtroTipoMovimentacao');
     const filtroMovimentacao = document.getElementById('filtroMovimentacao');
     const btnLimparFiltros = document.getElementById('btnLimparFiltros');
@@ -268,7 +272,13 @@ document.addEventListener('DOMContentLoaded', function() {
     dataInput.max = '2026-01-01';
     dataInput.valueAsDate = new Date();
 
-    // Função para limpar campos de movimentação
+    // =============================================
+    // FUNÇÕES PRINCIPAIS
+    // =============================================
+
+    /**
+     * Limpa os campos do formulário de movimentação
+     */
     function limparCamposMovimentacao() {
         document.getElementById('quantidade').value = '';
         selectProduto.value = '';
@@ -279,7 +289,9 @@ document.addEventListener('DOMContentLoaded', function() {
         carregarEmpresas();
     }
 
-    // Função para carregar empresas
+    /**
+     * Carrega as empresas no select
+     */
     function carregarEmpresas() {
         fetch('php/empresas.php')
             .then(response => response.json())
@@ -298,10 +310,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Função para carregar produtos no select
+    /**
+     * Carrega os produtos no select
+     */
     function carregarProdutosNoSelect() {
         selectProduto.innerHTML = '<option value="">Selecione um produto</option>';
-        
+
         fetch('php/itens.php')
             .then(response => response.json())
             .then(itens => {
@@ -318,13 +332,35 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Função para carregar itens para exclusão
+    /**
+     * Carrega itens para exclusão
+     */
     function carregarItensParaExclusao() {
         itemParaExcluirSelect.innerHTML = '<option value="">Selecione um item</option>';
         
         fetch('php/itens.php')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        throw new Error(`Resposta não é JSON: ${text}`);
+                    });
+                }
+                return response.json();
+            })
             .then(itens => {
+                if (!Array.isArray(itens)) {
+                    throw new Error('Resposta não é um array');
+                }
+                
+                if (itens.length === 0) {
+                    itemParaExcluirSelect.innerHTML = '<option value="">Nenhum item disponível</option>';
+                    return;
+                }
+    
                 itens.forEach(item => {
                     const option = document.createElement('option');
                     option.value = item.codigo;
@@ -334,33 +370,38 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showCustomAlert('Erro ao carregar itens para exclusão');
+                showCustomAlert('Erro ao carregar itens para exclusão: ' + error.message);
+                
+                // Opcional: Tentar novamente após 5 segundos
+                setTimeout(carregarItensParaExclusao, 5000);
             });
     }
 
-    // Função para atualizar o estoque na tabela
+    /**
+     * Atualiza a tabela de estoque
+     */
     function atualizarEstoque() {
         const corpoTabela = document.getElementById('corpoTabelaEstoque');
         corpoTabela.innerHTML = '';
-        
+
         let url = 'php/itens.php';
         const tipoFiltro = tipoFiltroEstoque.value;
         const valorFiltro = campoFiltroEstoque.value.toLowerCase();
-        
+
         if (tipoFiltro && valorFiltro) {
             if (tipoFiltro === 'codigo' || tipoFiltro === 'nome' || tipoFiltro === 'tipo') {
                 url += `?${tipoFiltro}=${encodeURIComponent(valorFiltro)}`;
             }
         }
-        
+
         fetch(url)
             .then(response => response.json())
             .then(itens => {
                 let totalItens = 0;
                 let totalCritico = 0;
                 let totalBaixo = 0;
-                
-                // Aplicar filtros adicionais no cliente (para critico/baixo)
+
+                // Aplicar filtros adicionais no cliente
                 const itensFiltrados = itens.filter(item => {
                     if (tipoFiltro === 'critico') {
                         return item.estoque_atual <= item.estoque_critico;
@@ -369,13 +410,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     return true;
                 });
-                
-                document.getElementById('semResultados').style.display = 
+
+                document.getElementById('semResultados').style.display =
                     itensFiltrados.length === 0 ? 'block' : 'none';
-                
+
                 itensFiltrados.forEach(item => {
                     totalItens++;
-                    
+
                     let status, statusClass;
                     if (item.estoque_atual <= item.estoque_critico) {
                         status = 'Crítico';
@@ -389,18 +430,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         status = 'Normal';
                         statusClass = 'status-normal';
                     }
-                    
+
                     let detalhes = '';
                     if (item.tipo_item === 'EPI') {
-                        detalhes = `CA: ${item.ca_epi}, Tamanho: ${item.tamanho_epi}`;
+                        detalhes = `CA: ${item.ca_epi || 'N/A'}, Tamanho: ${item.tamanho_epi || 'N/A'}`;
                     } else if (item.tipo_item === 'Material') {
-                        detalhes = `Tipo: ${item.tipo_material}, Dimensões: ${item.dimensoes_material}`;
+                        detalhes = `Tipo: ${item.tipo_material || 'N/A'}, Dimensões: ${item.dimensoes_material || 'N/A'}`;
                     }
-                    
+
                     const tr = document.createElement('tr');
                     if (status === 'Crítico') tr.classList.add('estoque-critico');
                     else if (status === 'Baixo') tr.classList.add('estoque-baixo');
-                    
+
                     tr.innerHTML = `
                         <td>${item.codigo}</td>
                         <td>${item.nome_produto}</td>
@@ -414,10 +455,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button class="action-button" title="Histórico" onclick="verHistorico('${item.codigo}')">📊</button>
                         </td>
                     `;
-                    
+
                     corpoTabela.appendChild(tr);
                 });
-                
+
                 document.getElementById('totalItens').textContent = totalItens;
                 document.getElementById('totalCritico').textContent = totalCritico;
                 document.getElementById('totalBaixo').textContent = totalBaixo;
@@ -428,197 +469,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Função para editar item (global para ser acessível nos eventos)
-    window.editarItem = function(codigo) {
-        document.querySelector('input[value="cadastro"]').click();
-        
-        fetch(`php/itens.php?codigo=${codigo}`)
-            .then(response => response.json())
-            .then(item => {
-                if (item) {
-                    document.getElementById('codigoCadastro').value = item.codigo;
-                    document.getElementById('nomeProdutoCadastro').value = item.nome_produto;
-                    document.getElementById('tipoItemCadastro').value = item.tipo_item;
-                    document.getElementById('estoqueAtualCadastro').value = item.estoque_atual;
-                    document.getElementById('estoqueCritico').value = item.estoque_critico;
-                    document.getElementById('estoqueSeguranca').value = item.estoque_seguranca;
-                    document.getElementById('estoqueMaximo').value = item.estoque_maximo;
-                    document.getElementById('estoqueMinimo').value = item.estoque_minimo;
-                    
-                    if (item.tipo_item === 'EPI') {
-                        document.getElementById('caEpi').value = item.ca_epi;
-                        document.getElementById('tamanhoEpi').value = item.tamanho_epi;
-                        document.getElementById('epiFields').style.display = 'block';
-                        document.getElementById('materialFields').style.display = 'none';
-                    } else if (item.tipo_item === 'Material') {
-                        document.getElementById('tipoMaterial').value = item.tipo_material;
-                        document.getElementById('dimensoesMaterial').value = item.dimensoes_material;
-                        document.getElementById('materialFields').style.display = 'block';
-                        document.getElementById('epiFields').style.display = 'none';
-                    }
-                    
-                    showCustomAlert(`Editando item ${item.codigo} - ${item.nome_produto}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showCustomAlert('Erro ao carregar item para edição');
-            });
-    }
-
-    // Função para ver histórico (global para ser acessível nos eventos)
-    window.verHistorico = function(codigo) {
-        fetch(`php/movimentacoes.php?item_codigo=${codigo}`)
-            .then(response => response.json())
-            .then(historico => {
-                if (historico.length === 0) {
-                    showCustomAlert('Nenhuma movimentação encontrada para este item.');
-                    return;
-                }
-                
-                // Busca o nome do produto para exibir no título
-                fetch(`php/itens.php?codigo=${codigo}`)
-                    .then(response => response.json())
-                    .then(item => {
-                        const nomeProduto = item ? item.nome_produto : '';
-                        
-                        // Atualiza o título da modal
-                        document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
-                        
-                        // Preenche o corpo da tabela
-                        const tbody = document.getElementById('historicoModalBody');
-                        tbody.innerHTML = '';
-                        
-                        historico.forEach(mov => {
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td>${formatarData(mov.data)}</td>
-                                <td class="${mov.tipo === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
-                                    ${mov.tipo === 'entrada' ? 'Entrada' : 'Saída'}
-                                </td>
-                                <td>${mov.quantidade}</td>
-                                <td>${mov.empresa_nome}</td>
-                            `;
-                            tbody.appendChild(tr);
-                        });
-                        
-                        // Exibe a modal
-                        const modal = document.getElementById('historicoModal');
-                        modal.style.display = 'flex';
-                        
-                        // Fecha a modal ao clicar no X ou fora do conteúdo
-                        document.querySelector('.modal-close').onclick = function() {
-                            modal.style.display = 'none';
-                        };
-                        
-                        modal.onclick = function(e) {
-                            if (e.target === modal) {
-                                modal.style.display = 'none';
-                            }
-                        };
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showCustomAlert('Erro ao carregar detalhes do item');
-                    });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showCustomAlert('Erro ao carregar histórico');
-            });
-    }
-
-    // Função para atualizar lista de movimentações
-    function atualizarListaMovimentacoes() {
-        const listaMovimentacoes = document.getElementById('listaMovimentacoes');
-        listaMovimentacoes.innerHTML = '';
-        
-        let url = 'php/movimentacoes.php';
-        const tipoFiltro = filtroTipoMovimentacao.value;
-        const textoFiltro = filtroMovimentacao.value.toLowerCase();
-        
-        if (tipoFiltro) {
-            url += `?tipo=${tipoFiltro}`;
-        }
-        
-        if (textoFiltro) {
-            url += `${tipoFiltro ? '&' : '?'}filtro=${encodeURIComponent(textoFiltro)}`;
-        }
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(movimentacoes => {
-                movimentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
-                
-                movimentacoes.forEach(mov => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${formatarData(mov.data)}</td>
-                        <td class="${mov.tipo === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
-                            ${mov.tipo === 'entrada' ? 'Entrada' : 'Saída'}
-                        </td>
-                        <td>${mov.item_codigo}</td>
-                        <td>${mov.nome_produto}</td>
-                        <td>${mov.quantidade}</td>
-                        <td>${mov.empresa_nome}</td>
-                    `;
-                    listaMovimentacoes.appendChild(tr);
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showCustomAlert('Erro ao carregar movimentações');
-            });
-    }
-
-    // Evento change do selectProduto
-    selectProduto.addEventListener('change', function () {
-        const codigoItem = this.value;
-        
-        if (!codigoItem) {
-            estoqueAtualInput.value = '';
-            tipoItemInput.value = '';
-            detalhesItemInput.value = '';
-            codigoInput.value = '';
-            return;
-        }
-
-        // Busca os detalhes completos do item selecionado
-        fetch(`php/itens.php?codigo=${codigoItem}`)
-            .then(response => response.json())
-            .then(item => {
-                if (item) {
-                    estoqueAtualInput.value = item.estoque_atual;
-                    tipoItemInput.value = item.tipo_item;
-                    codigoInput.value = item.codigo;
-
-                    // Preenche os detalhes conforme o tipo do item
-                    if (item.tipo_item === 'EPI') {
-                        detalhesItemInput.value = `CA: ${item.ca_epi}, Tamanho: ${item.tamanho_epi}`;
-                    } else if (item.tipo_item === 'Material') {
-                        detalhesItemInput.value = `Tipo: ${item.tipo_material}, Dimensões: ${item.dimensoes_material}`;
-                    } else {
-                        detalhesItemInput.value = '';
-                    }
-                } else {
-                    limparCamposMovimentacao();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showCustomAlert('Erro ao carregar detalhes do produto');
-                limparCamposMovimentacao();
-            });
-    });
-
-    // Função para alternar entre os conteúdos
+    /**
+     * Alterna entre os conteúdos (entrada, saída, estoque, cadastro)
+     */
     function toggleContent() {
         const selectedValue = document.querySelector('input[name="registro"]:checked').value;
         movimentacaoForm.style.display = 'none';
         estoqueContent.style.display = 'none';
         cadastroItemContent.style.display = 'none';
 
-        switch(selectedValue) {
+        switch (selectedValue) {
             case 'entrada':
                 pageTitle.textContent = 'Tela de Movimentações - Entrada';
                 movimentacaoForm.style.display = 'block';
@@ -648,17 +508,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 gerarNovoCodigo();
                 break;
         }
-        
+
         carregarItensParaExclusao();
     }
 
-    // Função para gerar novo código
+    /**
+     * Gera um novo código para cadastro de itens
+     */
     function gerarNovoCodigo() {
         fetch('php/itens.php')
             .then(response => response.json())
             .then(itens => {
                 let ultimoCodigo = 0;
-                
+
                 itens.forEach(item => {
                     const match = item.codigo.match(/\d+/);
                     if (match) {
@@ -668,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 });
-                
+
                 const novoCodigo = (ultimoCodigo + 1).toString().padStart(3, '0');
                 codigoCadastroInput.value = novoCodigo;
             })
@@ -677,6 +539,207 @@ document.addEventListener('DOMContentLoaded', function() {
                 codigoCadastroInput.value = '001';
             });
     }
+
+    /**
+     * Atualiza a lista de movimentações
+     */
+    function atualizarListaMovimentacoes() {
+        const listaMovimentacoes = document.getElementById('listaMovimentacoes');
+        listaMovimentacoes.innerHTML = '';
+
+        let url = 'php/movimentacoes.php';
+        const tipoFiltro = filtroTipoMovimentacao.value;
+        const textoFiltro = filtroMovimentacao.value.toLowerCase();
+
+        if (tipoFiltro) {
+            url += `?tipo=${tipoFiltro}`;
+        }
+
+        if (textoFiltro) {
+            url += `${tipoFiltro ? '&' : '?'}filtro=${encodeURIComponent(textoFiltro)}`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(movimentacoes => {
+                movimentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+                movimentacoes.forEach(mov => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${formatarData(mov.data)}</td>
+                        <td class="${mov.tipo === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
+                            ${mov.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                        </td>
+                        <td>${mov.item_codigo}</td>
+                        <td>${mov.nome_produto}</td>
+                        <td>${mov.quantidade}</td>
+                        <td>${mov.empresa_nome}</td>
+                    `;
+                    listaMovimentacoes.appendChild(tr);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar movimentações');
+            });
+    }
+
+    // =============================================
+    // FUNÇÕES GLOBAIS (disponíveis no escopo window)
+    // =============================================
+
+    /**
+     * Função para editar um item (disponível globalmente)
+     * @param {string} codigo - Código do item a ser editado
+     */
+    window.editarItem = function (codigo) {
+        document.querySelector('input[value="cadastro"]').click();
+
+        fetch(`php/itens.php?codigo=${codigo}`)
+            .then(response => response.json())
+            .then(item => {
+                if (item) {
+                    // Preenche os campos do formulário
+                    document.getElementById('codigoCadastro').value = item.codigo;
+                    document.getElementById('nomeProdutoCadastro').value = item.nome_produto;
+                    document.getElementById('tipoItemCadastro').value = item.tipo_item;
+                    document.getElementById('estoqueAtualCadastro').value = item.estoque_atual;
+                    document.getElementById('estoqueCritico').value = item.estoque_critico;
+                    document.getElementById('estoqueSeguranca').value = item.estoque_seguranca;
+                    document.getElementById('estoqueMaximo').value = item.estoque_maximo;
+                    document.getElementById('estoqueMinimo').value = item.estoque_minimo;
+
+                    // Preenche campos específicos por tipo
+                    if (item.tipo_item === 'EPI') {
+                        document.getElementById('caEpi').value = item.ca_epi || '';
+                        document.getElementById('tamanhoEpi').value = item.tamanho_epi || '';
+                        document.getElementById('epiFields').style.display = 'block';
+                        document.getElementById('materialFields').style.display = 'none';
+                    } else if (item.tipo_item === 'Material') {
+                        document.getElementById('tipoMaterial').value = item.tipo_material || '';
+                        document.getElementById('dimensoesMaterial').value = item.dimensoes_material || '';
+                        document.getElementById('materialFields').style.display = 'block';
+                        document.getElementById('epiFields').style.display = 'none';
+                    }
+
+                    showCustomAlert(`Editando item ${item.codigo} - ${item.nome_produto}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar item para edição');
+            });
+    }
+
+    /**
+     * Função para visualizar histórico de um item (disponível globalmente)
+     * @param {string} codigo - Código do item
+     */
+    window.verHistorico = function (codigo) {
+        fetch(`php/movimentacoes.php?item_codigo=${codigo}`)
+            .then(response => response.json())
+            .then(historico => {
+                if (historico.length === 0) {
+                    showCustomAlert('Nenhuma movimentação encontrada para este item.');
+                    return;
+                }
+
+                // Busca o nome do produto para exibir no título
+                fetch(`php/itens.php?codigo=${codigo}`)
+                    .then(response => response.json())
+                    .then(item => {
+                        const nomeProduto = item ? item.nome_produto : '';
+
+                        // Atualiza o título da modal
+                        document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
+
+                        // Preenche o corpo da tabela
+                        const tbody = document.getElementById('historicoModalBody');
+                        tbody.innerHTML = '';
+
+                        historico.forEach(mov => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${formatarData(mov.data)}</td>
+                                <td class="${mov.tipo === 'entrada' ? 'movimentacao-entrada' : 'movimentacao-saida'}">
+                                    ${mov.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                                </td>
+                                <td>${mov.quantidade}</td>
+                                <td>${mov.empresa_nome}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+
+                        // Exibe a modal
+                        const modal = document.getElementById('historicoModal');
+                        modal.style.display = 'flex';
+
+                        // Fecha a modal ao clicar no X ou fora do conteúdo
+                        document.querySelector('.modal-close').onclick = function () {
+                            modal.style.display = 'none';
+                        };
+
+                        modal.onclick = function (e) {
+                            if (e.target === modal) {
+                                modal.style.display = 'none';
+                            }
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showCustomAlert('Erro ao carregar detalhes do item');
+                    });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar histórico');
+            });
+    }
+
+    // =============================================
+    // EVENT LISTENERS
+    // =============================================
+
+    // Evento change do selectProduto
+    selectProduto.addEventListener('change', function () {
+        const codigoItem = this.value;
+
+        if (!codigoItem) {
+            estoqueAtualInput.value = '';
+            tipoItemInput.value = '';
+            detalhesItemInput.value = '';
+            codigoInput.value = '';
+            return;
+        }
+
+        // Busca os detalhes completos do item selecionado
+        fetch(`php/itens.php?codigo=${codigoItem}`)
+            .then(response => response.json())
+            .then(item => {
+                if (item) {
+                    estoqueAtualInput.value = item.estoque_atual;
+                    tipoItemInput.value = item.tipo_item;
+                    codigoInput.value = item.codigo;
+
+                    // Preenche os detalhes conforme o tipo do item
+                    if (item.tipo_item === 'EPI') {
+                        detalhesItemInput.value = `CA: ${item.ca_epi || 'N/A'}, Tamanho: ${item.tamanho_epi || 'N/A'}`;
+                    } else if (item.tipo_item === 'Material') {
+                        detalhesItemInput.value = `Tipo: ${item.tipo_material || 'N/A'}, Dimensões: ${item.dimensoes_material || 'N/A'}`;
+                    } else {
+                        detalhesItemInput.value = '';
+                    }
+                } else {
+                    limparCamposMovimentacao();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao carregar detalhes do produto');
+                limparCamposMovimentacao();
+            });
+    });
 
     // Evento para o botão salvar
     saveButton.addEventListener('click', function (event) {
@@ -723,39 +786,46 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: data
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSucessAlert(data.message);
-                    limparCamposMovimentacao();
-                    atualizarListaMovimentacoes();
-                    carregarProdutosNoSelect();
-                    carregarItensParaExclusao();
-                    atualizarEstoque();
-                } else {
-                    showCustomAlert(data.message || 'Erro ao registrar movimentação');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showCustomAlert('Erro ao registrar movimentação');
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na requisição');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showSucessAlert(data.message);
+                        limparCamposMovimentacao();
+                        atualizarListaMovimentacoes();
+                        carregarProdutosNoSelect();
+                        carregarItensParaExclusao();
+                        atualizarEstoque();
+                    } else {
+                        showCustomAlert(data.message || 'Erro ao registrar movimentação');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showCustomAlert('Erro ao registrar movimentação: ' + error.message);
+                });
 
         } else if (selectedValue === 'cadastro') {
             const codigo = codigoCadastroInput.value;
             const nomeProdutoCadastro = document.getElementById('nomeProdutoCadastro').value;
             const tipoItem = document.getElementById('tipoItemCadastro').value;
-            const estoqueAtual = parseInt(document.getElementById('estoqueAtualCadastro').value);
-            const estoqueCritico = parseInt(document.getElementById('estoqueCritico').value);
-            const estoqueSeguranca = parseInt(document.getElementById('estoqueSeguranca').value);
-            const estoqueMaximo = parseInt(document.getElementById('estoqueMaximo').value);
-            const estoqueMinimo = parseInt(document.getElementById('estoqueMinimo').value);
+            const estoqueAtual = parseInt(document.getElementById('estoqueAtualCadastro').value) || 0;
+            const estoqueCritico = parseInt(document.getElementById('estoqueCritico').value) || 0;
+            const estoqueSeguranca = parseInt(document.getElementById('estoqueSeguranca').value) || 0;
+            const estoqueMaximo = parseInt(document.getElementById('estoqueMaximo').value) || 0;
+            const estoqueMinimo = parseInt(document.getElementById('estoqueMinimo').value) || 0;
+            const empresaId = null; // Pode ser obtido de um campo se necessário
 
             if (!nomeProdutoCadastro || !tipoItem) {
                 showCustomAlert('Por favor, preencha todos os campos obrigatórios!');
                 return;
             }
 
+            // Preparando o objeto item corretamente
             const item = {
                 codigo: codigo,
                 nome_produto: nomeProdutoCadastro,
@@ -764,13 +834,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 estoque_critico: estoqueCritico,
                 estoque_seguranca: estoqueSeguranca,
                 estoque_maximo: estoqueMaximo,
-                estoque_minimo: estoqueMinimo
+                estoque_minimo: estoqueMinimo,
+                empresa_id: empresaId
             };
 
+            // Adicionando campos específicos conforme o tipo
             if (tipoItem === 'EPI') {
                 item.ca_epi = document.getElementById('caEpi').value;
                 item.tamanho_epi = document.getElementById('tamanhoEpi').value;
-                
+
                 if (!item.ca_epi) {
                     showCustomAlert('Por favor, informe o CA do EPI!');
                     return;
@@ -778,20 +850,20 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (tipoItem === 'Material') {
                 item.tipo_material = document.getElementById('tipoMaterial').value;
                 item.dimensoes_material = document.getElementById('dimensoesMaterial').value;
-                
+
                 if (!item.tipo_material) {
                     showCustomAlert('Por favor, informe o tipo de material!');
                     return;
                 }
-                
+
                 const dimensoesPattern = /^\d+,\d+x\d+,\d+$/;
-                if (!dimensoesPattern.test(item.dimensoes_material)) {
+                if (item.dimensoes_material && !dimensoesPattern.test(item.dimensoes_material)) {
                     showCustomAlert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
                     return;
                 }
             }
 
-            // Envia o item para o servidor
+            // Modifique o bloco de cadastro de itens para:
             fetch('php/itens.php', {
                 method: 'POST',
                 headers: {
@@ -799,59 +871,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(item)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSucessAlert(data.message);
-                    formCadastroItem.reset();
-                    tipoItemCadastro.value = 'tipoItemCadastro';
-                    epiFields.style.display = 'none';
-                    materialFields.style.display = 'none';
-                    gerarNovoCodigo();
-                    carregarProdutosNoSelect();
-                    carregarItensParaExclusao();
-                    atualizarEstoque();
-                } else {
-                    showCustomAlert(data.message || 'Erro ao cadastrar item');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showCustomAlert('Erro ao cadastrar item');
-            });
-        }
-    });
-
-    // Evento para excluir item
-    deleteItemButton.addEventListener('click', function() {
-        const codigoItem = itemParaExcluirSelect.value;
-        
-        if (!codigoItem) {
-            showCustomAlert('Por favor, selecione um item para excluir!');
-            return;
-        }
-        
-        showCustomConfirm(`Tem certeza que deseja excluir o item "${codigoItem}"? Esta ação não pode ser desfeita.`, function(confirmed) {
-            if (confirmed) {
-                fetch(`php/itens.php?codigo=${codigoItem}`, {
-                    method: 'DELETE'
+                .then(response => {
+                    // Primeiro verifique se a resposta é JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        return response.text().then(text => {
+                            throw new Error(`Resposta inesperada: ${text}`);
+                        });
+                    }
+                    return response.json();
                 })
-                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         showSucessAlert(data.message);
-                        carregarItensParaExclusao();
-                        carregarProdutosNoSelect();
-                        atualizarEstoque();
-                        atualizarListaMovimentacoes();
+                        // Restante do código...
                     } else {
-                        showCustomAlert(data.message || 'Erro ao excluir item');
+                        showCustomAlert(data.message || 'Erro ao cadastrar item');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showCustomAlert('Erro ao excluir item');
+                    showCustomAlert('Erro na comunicação com o servidor: ' + error.message);
                 });
+        }
+    });
+
+    // Evento para excluir item
+    deleteItemButton.addEventListener('click', function () {
+        const codigoItem = itemParaExcluirSelect.value;
+
+        if (!codigoItem) {
+            showCustomAlert('Por favor, selecione um item para excluir!');
+            return;
+        }
+
+        showCustomConfirm(`Tem certeza que deseja excluir o item "${codigoItem}"? Esta ação não pode ser desfeita.`, function (confirmed) {
+            if (confirmed) {
+                fetch(`php/itens.php?codigo=${codigoItem}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro na requisição');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showSucessAlert(data.message);
+                            carregarItensParaExclusao();
+                            carregarProdutosNoSelect();
+                            atualizarEstoque();
+                            atualizarListaMovimentacoes();
+                        } else {
+                            showCustomAlert(data.message || 'Erro ao excluir item');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showCustomAlert('Erro ao excluir item: ' + error.message);
+                    });
             }
         });
     });
@@ -859,14 +938,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Eventos para os filtros do histórico
     filtroTipoMovimentacao.addEventListener('change', atualizarListaMovimentacoes);
     filtroMovimentacao.addEventListener('input', atualizarListaMovimentacoes);
-    btnLimparFiltros.addEventListener('click', function() {
+    btnLimparFiltros.addEventListener('click', function () {
         filtroTipoMovimentacao.value = '';
         filtroMovimentacao.value = '';
         atualizarListaMovimentacoes();
     });
 
     // Evento para o filtro de estoque
-    tipoFiltroEstoque.addEventListener('change', function() {
+    tipoFiltroEstoque.addEventListener('change', function () {
         if (this.value && this.value !== 'critico' && this.value !== 'baixo') {
             campoFiltroEstoque.disabled = false;
             campoFiltroEstoque.placeholder = `Digite o ${this.value === 'codigo' ? 'código' : this.value === 'nome' ? 'nome' : 'tipo'}...`;
@@ -879,14 +958,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Evento para filtrar enquanto digita
-    campoFiltroEstoque.addEventListener('input', function() {
+    campoFiltroEstoque.addEventListener('input', function () {
         if (tipoFiltroEstoque.value) {
             atualizarEstoque();
         }
     });
 
     // Botão para gerar relatório
-    btnRelatorio.addEventListener('click', function() {
+    btnRelatorio.addEventListener('click', function () {
         fetch('php/itens.php')
             .then(response => response.json())
             .then(itens => {
@@ -894,9 +973,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
                 document.body.appendChild(iframe);
-                
+
                 const doc = iframe.contentWindow.document;
-                
+
                 // Estilos para impressão
                 doc.open();
                 doc.write(`
@@ -935,11 +1014,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             </thead>
                             <tbody>
                                 ${itens.map(item => {
-                                    const status = item.estoque_atual <= item.estoque_critico ? 'CRÍTICO' : 
-                                                   item.estoque_atual <= item.estoque_minimo ? 'BAIXO' : 'NORMAL';
-                                    const classeStatus = status === 'CRÍTICO' ? 'critico' : 
-                                                       status === 'BAIXO' ? 'baixo' : '';
-                                    return `
+                    const status = item.estoque_atual <= item.estoque_critico ? 'CRÍTICO' :
+                        item.estoque_atual <= item.estoque_minimo ? 'BAIXO' : 'NORMAL';
+                    const classeStatus = status === 'CRÍTICO' ? 'critico' :
+                        status === 'BAIXO' ? 'baixo' : '';
+                    return `
                                         <tr>
                                             <td>${item.codigo}</td>
                                             <td>${item.nome_produto}</td>
@@ -949,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <td class="${classeStatus}">${status}</td>
                                         </tr>
                                     `;
-                                }).join('')}
+                }).join('')}
                             </tbody>
                         </table>
                         <div class="no-print" style="margin-top: 20px; text-align: center;">
@@ -960,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </html>
                 `);
                 doc.close();
-                
+
                 // Focar no iframe e chamar a impressão
                 setTimeout(() => {
                     iframe.contentWindow.focus();
@@ -974,12 +1053,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Mostrar/ocultar campos de EPI ou Material conforme seleção
-    tipoItemCadastro.addEventListener('change', function() {
+    tipoItemCadastro.addEventListener('change', function () {
         const tipoSelecionado = this.value;
-        
+
         epiFields.style.display = 'none';
         materialFields.style.display = 'none';
-        
+
         if (tipoSelecionado === 'EPI') {
             epiFields.style.display = 'block';
         } else if (tipoSelecionado === 'Material') {
@@ -992,8 +1071,28 @@ document.addEventListener('DOMContentLoaded', function() {
         radio.addEventListener('change', toggleContent);
     });
 
-    // Inicialização
+    // =============================================
+    // INICIALIZAÇÃO
+    // =============================================
     carregarEmpresas();
     atualizarListaMovimentacoes();
     toggleContent();
 });
+
+// Adiciona estilos para animações
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateX(-50%) translateY(0); }
+        to { opacity: 0; transform: translateX(100%) translateY(0px); }
+    }
+    @keyframes timer {
+        from { width: 100%; }
+        to { width: 0%; }
+    }
+`;
+document.head.appendChild(style);
