@@ -1,0 +1,56 @@
+-- Criação do banco de dados
+CREATE DATABASE IF NOT EXISTS controle_estoque;
+USE controle_estoque;
+ 
+-- Tabela de usuários
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ 
+-- Tabela de empresas
+CREATE TABLE empresas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cnpj VARCHAR(18) NOT NULL UNIQUE
+);
+ 
+-- Tabela de itens
+CREATE TABLE itens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    codigo VARCHAR(20) NOT NULL UNIQUE,
+    nome_produto VARCHAR(100) NOT NULL,
+    tipo_item ENUM('EPI', 'Material') NOT NULL,
+    estoque_atual INT NOT NULL,
+    estoque_critico INT NOT NULL,
+    estoque_seguranca INT NOT NULL,
+    estoque_maximo INT NOT NULL,
+    estoque_minimo INT NOT NULL,
+    empresa_id INT,
+    ca_epi VARCHAR(50),
+    tamanho_epi VARCHAR(20),
+    tipo_material VARCHAR(50),
+    dimensoes_material VARCHAR(50),
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id)
+);
+ 
+-- Tabela de movimentações
+CREATE TABLE movimentacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo ENUM('entrada', 'saida') NOT NULL,
+    item_id INT NOT NULL,
+    empresa_id INT NOT NULL,
+    quantidade INT NOT NULL,
+    data DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES itens(id),
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id)
+);
+ 
+INSERT into empresas (id, nome, cnpj) values 
+(1, "Empresa 1", "12.345.678/0001-00"), 
+(2, "Empresa 2", "98.765.432/0001-11"), 
+(3, "Empresa 3", "45.678.901/0001-22")
