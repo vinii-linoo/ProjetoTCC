@@ -148,6 +148,83 @@ function showCustomConfirm(message, callback) {
 }
 
 // =============================================
+// SISTEMA DE LOGIN E REGISTRO
+// =============================================
+
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+
+if (loginForm) {
+    loginForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        fetch('php/login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showTempMessage('Login bem-sucedido!', data.redirect);
+                } else {
+                    showTempMessage(data.message || 'E-mail ou senha incorretos.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showTempMessage('Erro ao fazer login. Tente novamente.');
+            });
+    });
+}
+
+if (registerForm) {
+    registerForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const newUsername = document.getElementById('newUsername').value;
+        const newEmail = document.getElementById('newEmail').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!validateEmail(newEmail)) {
+            showTempMessage('Por favor, insira um e-mail válido.');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showTempMessage('As senhas não coincidem!');
+            return;
+        }
+
+        fetch('php/register.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `newUsername=${encodeURIComponent(newUsername)}&newEmail=${encodeURIComponent(newEmail)}&newPassword=${encodeURIComponent(newPassword)}&confirmPassword=${encodeURIComponent(confirmPassword)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showTempMessage(data.message, data.redirect);
+                    registerForm.reset();
+                    document.querySelector('input[type="password"]').value = '';
+                } else {
+                    showTempMessage(data.message || 'Erro ao registrar usuário.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showTempMessage('Erro ao registrar. Tente novamente.');
+            });
+    });
+}
+
+// =============================================
 // SISTEMA DE CONTROLE DE ESTOQUE
 // =============================================
 
@@ -329,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (tipoFiltro === 'critico') {
                         return item.estoque_atual <= item.estoque_critico;
                     } else if (tipoFiltro === 'baixo') {
-                        return item.estoque_atual > item.estoque_critico && item.estoque_atual <= item.estoque_seguranca;
+                        return item.estoque_atual > item.estoque_critico && item.estoque_atual <= item.estoque_minimo;
                     }
                     return true;
                 });
@@ -345,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         status = 'Crítico';
                         statusClass = 'status-critico';
                         totalCritico++;
-                    } else if (item.estoque_atual <= item.estoque_seguranca) {
+                    } else if (item.estoque_atual <= item.estoque_minimo) {
                         status = 'Baixo';
                         statusClass = 'status-baixo';
                         totalBaixo++;
@@ -362,11 +439,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     const tr = document.createElement('tr');
-                    if (status === 'Crítico') {
-                        tr.classList.add('estoque-critico');
-                    } else if (status === 'Baixo') {
-                        tr.classList.add('estoque-baixo');
-                    }
+                    if (status === 'Crítico') tr.classList.add('estoque-critico');
+                    else if (status === 'Baixo') tr.classList.add('estoque-baixo');
 
                     tr.innerHTML = `
                         <td>${item.codigo}</td>
@@ -536,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('estoqueMaximo').value = item.estoque_maximo;
                     document.getElementById('estoqueMinimo').value = item.estoque_minimo;
 
-                    // Preenche campos específicos conforme o tipo
+                    // Preenche campos específicos por tipo
                     if (item.tipo_item === 'EPI') {
                         document.getElementById('caEpi').value = item.ca_epi || '';
                         document.getElementById('tamanhoEpi').value = item.tamanho_epi || '';
@@ -934,15 +1008,14 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <th>Produto</th>
                                     <th>Tipo</th>
                                     <th>Estoque Atual</th>
-                                    <th>Segurança</th>
-                                    <th>Crítico</th>
+                                    <th>Mínimo</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${itens.map(item => {
                     const status = item.estoque_atual <= item.estoque_critico ? 'CRÍTICO' :
-                        item.estoque_atual <= item.estoque_seguranca ? 'BAIXO' : 'NORMAL';
+                        item.estoque_atual <= item.estoque_minimo ? 'BAIXO' : 'NORMAL';
                     const classeStatus = status === 'CRÍTICO' ? 'critico' :
                         status === 'BAIXO' ? 'baixo' : '';
                     return `
@@ -951,8 +1024,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <td>${item.nome_produto}</td>
                                             <td>${item.tipo_item}</td>
                                             <td>${item.estoque_atual}</td>
-                                            <td>${item.estoque_seguranca}</td>
-                                            <td>${item.estoque_critico}</td>
+                                            <td>${item.estoque_minimo}</td>
                                             <td class="${classeStatus}">${status}</td>
                                         </tr>
                                     `;
