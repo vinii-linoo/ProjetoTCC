@@ -506,6 +506,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 epiFields.style.display = 'none';
                 materialFields.style.display = 'none';
                 gerarNovoCodigo();
+                limparCamposMovimentacao();
                 break;
         }
 
@@ -795,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(data => {
                     if (data.success) {
                         showSucessAlert(data.message);
-                        limparCamposMovimentacao();
+                        limparCamposMovimentacao(); // Limpa os campos do formulário após salvar
                         atualizarListaMovimentacoes();
                         carregarProdutosNoSelect();
                         carregarItensParaExclusao();
@@ -851,19 +852,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.tipo_material = document.getElementById('tipoMaterial').value;
                 item.dimensoes_material = document.getElementById('dimensoesMaterial').value;
 
-                if (!item.tipo_material) {
-                    showCustomAlert('Por favor, informe o tipo de material!');
-                    return;
-                }
-
-                const dimensoesPattern = /^\d+,\d+x\d+,\d+$/;
+                const dimensoesPattern = /^\\d+,\\d+x\\d+,\\d+$/;
                 if (item.dimensoes_material && !dimensoesPattern.test(item.dimensoes_material)) {
                     showCustomAlert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
                     return;
                 }
             }
 
-            // Modifique o bloco de cadastro de itens para:
             fetch('php/itens.php', {
                 method: 'POST',
                 headers: {
@@ -872,7 +867,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(item)
             })
                 .then(response => {
-                    // Primeiro verifique se a resposta é JSON
                     const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         return response.text().then(text => {
@@ -884,7 +878,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(data => {
                     if (data.success) {
                         showSucessAlert(data.message);
-                        // Restante do código...
+                        formCadastroItem.reset();
                     } else {
                         showCustomAlert(data.message || 'Erro ao cadastrar item');
                     }
@@ -1095,4 +1089,4 @@ style.textContent = `
         to { width: 0%; }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(style); 
