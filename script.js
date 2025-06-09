@@ -51,16 +51,22 @@ function validateEmail(email) {
  * @returns {string} - Data formatada
  */
 function formatarData(dataString) {
+    // Adiciona o fuso horário se não estiver presente (assumindo que a data do servidor está em UTC)
+    if (dataString && !dataString.endsWith('Z')) {
+        dataString += 'Z';
+    }
+    
     const data = new Date(dataString);
-    return data.toLocaleDateString('pt-BR', {
+    
+    // Ajusta para o fuso horário local
+    const dataLocal = new Date(data.getTime() + data.getTimezoneOffset() * 60000);
+    
+    return dataLocal.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
     });
 }
-
 // =============================================
 // SISTEMA DE ALERTAS PERSONALIZADOS
 // =============================================
@@ -704,33 +710,33 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
     window.excluirMovimentacao = function(id, codigoItem, tipo, quantidade) {
-        showCustomConfirm(`Tem certeza que deseja excluir esta movimentação de ${tipo}? Esta ação ajustará o estoque.`, function(confirmed) {
-            if (confirmed) {
-                fetch(`php/movimentacoes.php?id=${id}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showSucessAlert(data.message);
-                        atualizarListaMovimentacoes();
-                        atualizarEstoque();
-                        
-                        // Se estiver visualizando o histórico de um item específico, atualiza também
-                        if (document.getElementById('historicoModal').style.display === 'flex') {
-                            verHistorico(codigoItem);
-                        }
-                    } else {
-                        showCustomAlert(data.message || 'Erro ao excluir movimentação');
+    showCustomConfirm(`Tem certeza que deseja excluir esta movimentação de ${tipo}? Esta ação ajustará o estoque.`, function(confirmed) {
+        if (confirmed) {
+            fetch(`php/movimentacoes.php?id=${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSucessAlert(data.message);
+                    atualizarListaMovimentacoes();
+                    atualizarEstoque();
+                    
+                    // Se estiver visualizando o histórico de um item específico, atualiza também
+                    if (document.getElementById('historicoModal').style.display === 'flex') {
+                        verHistorico(codigoItem);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showCustomAlert('Erro ao excluir movimentação: ' + error.message);
-                });
-            }
-        });
-    }
+                } else {
+                    showCustomAlert(data.message || 'Erro ao excluir movimentação');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Erro ao excluir movimentação: ' + error.message);
+            });
+        }
+    });
+}
     // =============================================
     // EVENT LISTENERS
     // =============================================

@@ -224,7 +224,7 @@ button:hover {
     transform: translateY(-2px);
 }
 
-/* Estilos para a tabela de estoque */
+/* Estilos para a tabela de estoque - Centralização ajustada */
 .estoque-header {
     display: flex;
     justify-content: space-between;
@@ -241,12 +241,16 @@ button:hover {
     color: #1f9e9b;
     font-size: 24px;
     font-weight: 600;
+    text-align: center;
+    width: 100%;
 }
 
 .filtro-container {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
+    justify-content: flex-end;
 }
 
 .filtro-select {
@@ -304,7 +308,7 @@ button:hover {
     background-color: #1f9e9b;
     color: white;
     padding: 12px 15px;
-    text-align: left;
+    text-align: center;
     font-weight: 600;
 }
 
@@ -312,6 +316,7 @@ button:hover {
     padding: 12px 15px;
     border-bottom: 1px solid #e0e0e0;
     vertical-align: middle;
+    text-align: center;
 }
 
 .estoque-table tr:hover {
@@ -410,6 +415,8 @@ button:hover {
     cursor: pointer;
     font-weight: 500;
     transition: all 0.3s;
+    text-align: center;
+    display: inline-block;
 }
 
 .report-button:hover {
@@ -426,6 +433,7 @@ button:hover {
     color: #555;
     transition: all 0.2s;
     font-size: 16px;
+    text-align: center;
 }
 
 .action-button:hover {
@@ -433,7 +441,7 @@ button:hover {
     transform: scale(1.1);
 }
 
-/* Estilos para o histórico de movimentações */
+/* Estilos para o histórico de movimentações - Centralização ajustada */
 .movimentacoes-salvas {
     margin-top: 30px;
     background: #ffffff;
@@ -455,12 +463,16 @@ button:hover {
     margin: 0;
     color: #1f9e9b;
     font-size: 20px;
+    text-align: center;
+    width: 100%;
 }
 
 .filtro-movimentacoes {
     display: flex;
     gap: 10px;
     align-items: center;
+    width: 100%;
+    justify-content: flex-end;
 }
 
 .movimentacoes-table-container {
@@ -478,13 +490,14 @@ button:hover {
     background-color: #1f9e9b;
     color: white;
     padding: 12px 15px;
-    text-align: left;
+    text-align: center;
     font-weight: 600;
 }
 
 .movimentacoes-table td {
     padding: 10px 15px;
     border-bottom: 1px solid #e0e0e0;
+    text-align: center;
 }
 
 .movimentacoes-table tr:hover {
@@ -616,6 +629,7 @@ button:hover {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s;
+    text-align: center;
 }
 
 .confirm-yes {
@@ -701,13 +715,14 @@ button:hover {
     background-color: #f5f5f5;
     color: #333;
     padding: 12px 15px;
-    text-align: left;
+    text-align: center;
     font-weight: 600;
 }
 
 .modal-table td {
     padding: 10px 15px;
     border-bottom: 1px solid #e0e0e0;
+    text-align: center;
 }
 
 .modal-table tr:last-child td {
@@ -787,4 +802,4 @@ button:hover {
     .modal-content {
         width: 95%;
     }
-}       
+}
