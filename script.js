@@ -547,24 +547,24 @@ document.addEventListener('DOMContentLoaded', function () {
     function atualizarListaMovimentacoes() {
         const listaMovimentacoes = document.getElementById('listaMovimentacoes');
         listaMovimentacoes.innerHTML = '';
-
+    
         let url = 'php/movimentacoes.php';
         const tipoFiltro = filtroTipoMovimentacao.value;
         const textoFiltro = filtroMovimentacao.value.toLowerCase();
-
+    
         if (tipoFiltro) {
             url += `?tipo=${tipoFiltro}`;
         }
-
+    
         if (textoFiltro) {
             url += `${tipoFiltro ? '&' : '?'}filtro=${encodeURIComponent(textoFiltro)}`;
         }
-
+    
         fetch(url)
             .then(response => response.json())
             .then(movimentacoes => {
                 movimentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
-
+    
                 movimentacoes.forEach(mov => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -576,6 +576,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${mov.nome_produto}</td>
                         <td>${mov.quantidade}</td>
                         <td>${mov.empresa_nome}</td>
+                        <td>
+                            <button class="action-button" title="Excluir" onclick="excluirMovimentacao('${mov.id}', '${mov.item_codigo}', '${mov.tipo}', ${mov.quantidade})">🗑️</button>
+                        </td>
                     `;
                     listaMovimentacoes.appendChild(tr);
                 });
@@ -645,20 +648,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     showCustomAlert('Nenhuma movimentação encontrada para este item.');
                     return;
                 }
-
+    
                 // Busca o nome do produto para exibir no título
                 fetch(`php/itens.php?codigo=${codigo}`)
                     .then(response => response.json())
                     .then(item => {
                         const nomeProduto = item ? item.nome_produto : '';
-
+    
                         // Atualiza o título da modal
                         document.getElementById('historicoModalTitle').textContent = `Histórico: ${codigo} - ${nomeProduto}`;
-
+    
                         // Preenche o corpo da tabela
                         const tbody = document.getElementById('historicoModalBody');
                         tbody.innerHTML = '';
-
+    
                         historico.forEach(mov => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
@@ -668,19 +671,22 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </td>
                                 <td>${mov.quantidade}</td>
                                 <td>${mov.empresa_nome}</td>
+                                <td>
+                                    <button class="action-button" title="Excluir" onclick="excluirMovimentacao('${mov.id}', '${mov.item_codigo}', '${mov.tipo}', ${mov.quantidade})">🗑️</button>
+                                </td>
                             `;
                             tbody.appendChild(tr);
                         });
-
+    
                         // Exibe a modal
                         const modal = document.getElementById('historicoModal');
                         modal.style.display = 'flex';
-
+    
                         // Fecha a modal ao clicar no X ou fora do conteúdo
                         document.querySelector('.modal-close').onclick = function () {
                             modal.style.display = 'none';
                         };
-
+    
                         modal.onclick = function (e) {
                             if (e.target === modal) {
                                 modal.style.display = 'none';
@@ -697,7 +703,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 showCustomAlert('Erro ao carregar histórico');
             });
     }
-
+    window.excluirMovimentacao = function(id, codigoItem, tipo, quantidade) {
+        showCustomConfirm(`Tem certeza que deseja excluir esta movimentação de ${tipo}? Esta ação ajustará o estoque.`, function(confirmed) {
+            if (confirmed) {
+                fetch(`php/movimentacoes.php?id=${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSucessAlert(data.message);
+                        atualizarListaMovimentacoes();
+                        atualizarEstoque();
+                        
+                        // Se estiver visualizando o histórico de um item específico, atualiza também
+                        if (document.getElementById('historicoModal').style.display === 'flex') {
+                            verHistorico(codigoItem);
+                        }
+                    } else {
+                        showCustomAlert(data.message || 'Erro ao excluir movimentação');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showCustomAlert('Erro ao excluir movimentação: ' + error.message);
+                });
+            }
+        });
+    }
     // =============================================
     // EVENT LISTENERS
     // =============================================

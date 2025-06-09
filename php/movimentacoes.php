@@ -173,4 +173,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->close();
     exit;
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $id = sanitizeInput($_GET['id']);
+    
+    // Primeiro obtemos os dados da movimentação para atualizar o estoque
+    $stmt = $conn->prepare("SELECT m.tipo, m.quantidade, i.id as item_id, i.estoque_atual 
+                           FROM movimentacoes m 
+                           JOIN itens i ON m.item_id = i.id 
+                           WHERE m.id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Movimentação não encontrada.']);
+        $stmt->close();
+        $conn->close();
+        exit;
+    }
+    
+    $movimentacao = $result->fetch_assoc();
+    
+    // Calcula o novo estoque
+    $novoEstoque = $movimentacao['tipo'] === 'entrada' 
+        ? $movimentacao['estoque_atual'] - $movimentacao['quantidade']
+        : $movimentacao['estoque_atual'] + $movimentacao['quantidade'];
+    
+    // Atualiza o estoque do item
+    $stmtUpdate = $conn->prepare("UPDATE itens SET estoque_atual = ? WHERE id = ?");
+    $stmtUpdate->bind_param("ii", $novoEstoque, $movimentacao['item_id']);
+    
+    if ($stmtUpdate->execute()) {
+        // Agora exclui a movimentação
+        $stmtDelete = $conn->prepare("DELETE FROM movimentacoes WHERE id = ?");
+        $stmtDelete->bind_param("i", $id);
+        
+        if ($stmtDelete->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Movimentação excluída com sucesso!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao excluir movimentação: ' . $conn->error]);
+        }
+        $stmtDelete->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Erro ao atualizar estoque: ' . $conn->error]);
+    }
+    
+    $stmtUpdate->close();
+    $stmt->close();
+    $conn->close();
+    exit;
+}
 ?>
