@@ -677,9 +677,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </td>
                                 <td>${mov.quantidade}</td>
                                 <td>${mov.empresa_nome}</td>
-                                <td>
-                                    <button class="action-button" title="Excluir" onclick="excluirMovimentacao('${mov.id}', '${mov.item_codigo}', '${mov.tipo}', ${mov.quantidade})">🗑️</button>
-                                </td>
                             `;
                             tbody.appendChild(tr);
                         });
