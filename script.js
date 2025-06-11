@@ -274,9 +274,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnLimparFiltros = document.getElementById('btnLimparFiltros');
 
     // Configurações iniciais
-    dataInput.min = '2025-01-01';
-    dataInput.max = '2026-01-01';
-    dataInput.valueAsDate = new Date();
+    const today = new Date();
+const todayFormatted = today.toISOString().split('T')[0];
+dataInput.min = '2025-01-01';
+dataInput.max = '2026-01-01';
+dataInput.value = todayFormatted;
 
     // =============================================
     // FUNÇÕES PRINCIPAIS
@@ -889,8 +891,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.dimensoes_material = document.getElementById('dimensoesMaterial').value;
 
                 const dimensoesPattern = /^\\d+,\\d+x\\d+,\\d+$/;
-                if (item.dimensoes_material && !dimensoesPattern.test(item.dimensoes_material)) {
-                    showCustomAlert('Por favor, insira as dimensões no formato correto (ex: 1,25x1,50)');
+                if (item.dimensoes_material && item.dimensoes_material.trim() === '') {
+                    showCustomAlert('Por favor, informe as dimensões do material!');
                     return;
                 }
             }
